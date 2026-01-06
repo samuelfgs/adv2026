@@ -723,9 +723,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   htmlFor={`isElderly-${index}`}
                   className="text-sm font-medium text-slate-700 leading-relaxed select-none cursor-pointer"
                 >
-                  <strong className="font-bold text-blue-700">Sou idoso (60+ anos)</strong>
+                  <strong className="font-bold text-blue-700">Idoso (60+ anos)</strong>
                   <p className="text-xs text-slate-600 mt-1">
-                    Desconto de 50% aplicado. Será necessário apresentar documento com data de nascimento no dia do evento.
+                    Desconto de 50% aplicado. Será necessário apresentar documento com data de nascimento no dia da retirada do kit.
                   </p>
                 </label>
               </div>
