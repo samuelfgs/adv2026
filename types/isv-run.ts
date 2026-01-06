@@ -26,6 +26,7 @@ export interface PersonData {
   gender: Gender;
   shirtSize: ShirtSize;
   modalidade: Modalidade;
+  isElderly?: boolean;
   saved?: boolean;
 }
 

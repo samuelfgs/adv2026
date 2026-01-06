@@ -20,6 +20,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
       gender: Gender.MALE,
       shirtSize: ShirtSize.M,
       modalidade: Modalidade.RUN,
+      isElderly: false,
       saved: false,
     }],
     aceitaTermos: false,
@@ -71,6 +72,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         gender: Gender.MALE,
         shirtSize: ShirtSize.M,
         modalidade: Modalidade.RUN,
+        isElderly: false,
         saved: false,
       }]
     });
@@ -705,6 +707,30 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               </div>
             </div>
 
+            {/* Elderly Checkbox */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-4 p-5 rounded-[1.5rem] bg-blue-50/50 border border-blue-200">
+                <div className="relative flex items-center h-5">
+                  <input
+                    id={`isElderly-${index}`}
+                    type="checkbox"
+                    className="w-6 h-6 rounded-lg text-blue-600 focus:ring-blue-500 border-slate-200 cursor-pointer accent-blue-600"
+                    checked={person.isElderly || false}
+                    onChange={(e) => updatePerson(index, "isElderly", e.target.checked)}
+                  />
+                </div>
+                <label
+                  htmlFor={`isElderly-${index}`}
+                  className="text-sm font-medium text-slate-700 leading-relaxed select-none cursor-pointer"
+                >
+                  <strong className="font-bold text-blue-700">Sou idoso (60+ anos)</strong>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Desconto de 50% aplicado. Será necessário apresentar documento com data de nascimento no dia do evento.
+                  </p>
+                </label>
+              </div>
+            </div>
+
             {/* Save Button */}
             <button
               type="button"
@@ -788,7 +814,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
               Total a pagar ({formData.people.length} {formData.people.length === 1 ? 'pessoa' : 'pessoas'})
             </span>
             <span className="text-3xl sm:text-2xl font-black text-slate-900">
-              {formatPrice(String((+(process.env.NEXT_PUBLIC_PRICE || "70")) * formData.people.length))}
+              {formatPrice(String(
+                formData.people.reduce((total, person) => {
+                  const basePrice = +(process.env.NEXT_PUBLIC_PRICE || "70");
+                  const personPrice = person.isElderly ? basePrice / 2 : basePrice;
+                  return total + personPrice;
+                }, 0)
+              ))}
             </span>
           </div>
           {submitError && (

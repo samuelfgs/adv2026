@@ -10,6 +10,8 @@ interface ParticipantData {
   gender: string;
   shirtSize: string;
   modalidade: 'walk' | 'run';
+  isElderly?: boolean;
+  price?: number;
 }
 
 interface RegistrationData {
@@ -186,7 +188,14 @@ const SuccessPage: React.FC = () => {
                 <div className="space-y-4">
                   {people.map((person, index) => (
                     <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                      <p className="text-lg font-bold text-slate-900 mb-2">{person.nome}</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-lg font-bold text-slate-900">{person.nome}</p>
+                        {person.isElderly && (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-lg">
+                            Idoso - 50% desconto
+                          </span>
+                        )}
+                      </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           <span className="text-slate-500">Modalidade:</span>{' '}
@@ -199,6 +208,12 @@ const SuccessPage: React.FC = () => {
                           <span className="font-semibold text-slate-900">{person.shirtSize.toUpperCase()}</span>
                         </div>
                       </div>
+                      {person.price && (
+                        <div className="mt-2 pt-2 border-t border-slate-200">
+                          <span className="text-slate-500 text-sm">Valor:</span>{' '}
+                          <span className="font-semibold text-green-600">{formatPrice(person.price.toString())}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -295,6 +310,16 @@ const SuccessPage: React.FC = () => {
                 </span>
                 <span>Prepare-se e nos vemos no dia 7 de Fevereiro às 18:30!</span>
               </li>
+              {people.some((p) => p.isElderly) && (
+                <li className="flex items-start">
+                  <span className="flex-shrink-0 w-6 h-6 bg-yellow-400/30 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                    <span className="text-sm font-bold">⚠️</span>
+                  </span>
+                  <span className="font-semibold">
+                    Participantes idosos devem apresentar documento com data de nascimento no check-in
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
 

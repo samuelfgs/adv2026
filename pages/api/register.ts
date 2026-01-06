@@ -36,7 +36,12 @@ export default async function handler(
     // Create MercadoPago preference
     const preference = new Preference(client);
     const totalQuantity = people.length;
-    const totalPrice = PRICE * totalQuantity;
+
+    // Calculate total price considering elderly discount (50% off)
+    const totalPrice = people.reduce((sum: number, person: any) => {
+      const personPrice = person.isElderly ? PRICE / 2 : PRICE;
+      return sum + personPrice;
+    }, 0);
 
     // Count modalidades for description
     const runCount = people.filter((p: any) => p.modalidade === Modalidade.RUN).length;
@@ -50,17 +55,24 @@ export default async function handler(
       modalidadeDescription = `Caminhada 5km`;
     }
 
+    // Create individual items for each person to support different prices
+    const items = people.map((person: any, index: number) => {
+      const personPrice = person.isElderly ? PRICE / 2 : PRICE;
+      const modalityText = person.modalidade === Modalidade.RUN ? 'Corrida' : 'Caminhada';
+      const elderlyText = person.isElderly ? ' (Idoso - 50% desconto)' : '';
+
+      return {
+        id: String(index),
+        title: `ISV RUN - ${modalityText}${elderlyText}`,
+        description: `Inscrição: ${person.nome} - ISV RUN - Igreja em São Vicente - 07 de Fevereiro`,
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: personPrice,
+      };
+    });
+
     const mercadoPagoBody = {
-      items: [
-        {
-          id: "0",
-          title: `ISV RUN - ${modalidadeDescription}`,
-          description: `Inscrição para ${totalQuantity} ${totalQuantity === 1 ? 'pessoa' : 'pessoas'} - ISV RUN - Igreja em São Vicente - 07 de Fevereiro`,
-          quantity: totalQuantity,
-          currency_id: "BRL",
-          unit_price: PRICE,
-        }
-      ],
+      items: items,
       payer: {
         name: people[0].nome,
         email: email,
@@ -98,12 +110,15 @@ export default async function handler(
           gender: person.gender,
           shirtSize: person.shirtSize,
           modalidade: person.modalidade,
+          isElderly: person.isElderly || false,
+          price: person.isElderly ? PRICE / 2 : PRICE,
         })),
-        price: PRICE,
+        basePrice: PRICE,
         totalQuantity: totalQuantity,
         totalPrice: totalPrice,
         runCount: runCount,
         walkCount: walkCount,
+        elderlyCount: people.filter((p: any) => p.isElderly).length,
         modalidadeDescription: modalidadeDescription,
         init_point: mercadoPagoResponse.init_point
       }
