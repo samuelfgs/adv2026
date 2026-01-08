@@ -4,6 +4,7 @@ import { generateIsvRunEmailHtml } from './isvRunEmailTemplate';
 import { generateQRCodeSvg } from '../email';
 import type { IscritoRecord } from '../mercadopago/webhook/types';
 import nodemailer from 'nodemailer';
+import { appendRegistrationToSheet } from '@/lib/google-sheets';
 
 
 export const transporter = nodemailer.createTransport({
@@ -85,6 +86,15 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
         } catch (trackingError) {
           console.error('Error sending tracking email:', trackingError);
           // Don't fail the whole process if tracking email fails
+        }
+
+        // Update Google Sheet with registration data
+        try {
+          await appendRegistrationToSheet(inscrito);
+          console.log('Successfully added registration to Google Sheet:', inscrito.id);
+        } catch (sheetError) {
+          console.error('Error updating Google Sheet (non-blocking):', sheetError);
+          // Don't fail email sending if sheet update fails
         }
 
         resolve(info);
