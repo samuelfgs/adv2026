@@ -131,7 +131,6 @@ async function getExistingCpfsForRegistration(registrationId: string): Promise<S
 
 /**
  * Main function to append registration data to Google Sheet
- * - Checks for duplicates before appending
  * - Appends one row per participant
  * - Non-blocking: logs errors but doesn't throw
  *
@@ -150,24 +149,15 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
   }
 
   try {
-    // Check for duplicates
-    const existingCpfs = await getExistingCpfsForRegistration(inscrito.id);
-
     // Format all participants as rows
-    const allRows = formatRegistrationForSheet(inscrito);
+    const rows = formatRegistrationForSheet(inscrito);
 
-    // Filter out participants that already exist
-    const newRows = allRows.filter((row) => {
-      const cpf = row[2]; // CPF is at index 2 (column C)
-      return !existingCpfs.has(cpf);
-    });
-
-    if (newRows.length === 0) {
-      console.log(`All participants already exist in sheet, skipping: ${inscrito.id}`);
+    if (rows.length === 0) {
+      console.log(`No valid rows to append for registration: ${inscrito.id}`);
       return;
     }
 
-    // Append new rows to the sheet
+    // Append rows to the sheet
     const sheets = getSheetsClient();
     const spreadsheetId = process.env.SPREADSHEET_ID!;
 
@@ -177,11 +167,11 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
-        values: newRows,
+        values: rows,
       },
     });
 
-    console.log(`✓ Added ${newRows.length} participant(s) to Google Sheet for registration ${inscrito.id}`);
+    console.log(`✓ Added ${rows.length} participant(s) to Google Sheet for registration ${inscrito.id}`);
   } catch (error) {
     console.error('Error appending to Google Sheet:', error);
     // Don't throw - this is a non-blocking operation

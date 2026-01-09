@@ -77,7 +77,16 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
       } else {
         console.log('ISV RUN email sent successfully:', info);
 
-        // Resolve immediately to prevent timeout
+        // Update Google Sheet with registration data (now fast - just one API call)
+        try {
+          await appendRegistrationToSheet(inscrito);
+          console.log('Successfully added registration to Google Sheet:', inscrito.id);
+        } catch (sheetError) {
+          console.error('Error updating Google Sheet (non-blocking):', sheetError);
+          // Don't fail the whole process if sheet update fails
+        }
+
+        // Resolve to complete the webhook response
         resolve(info);
 
         // Send copy to tracking email (non-blocking, fire and forget)
@@ -89,15 +98,6 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
           .then(() => console.log('Tracking email sent for registration:', id))
           .catch((trackingError) => {
             console.error('Error sending tracking email (non-blocking):', trackingError);
-          });
-
-        // Update Google Sheet with registration data (non-blocking, fire and forget)
-        appendRegistrationToSheet(inscrito)
-          .then(() => {
-            console.log('Successfully added registration to Google Sheet:', inscrito.id);
-          })
-          .catch((sheetError) => {
-            console.error('Error updating Google Sheet (non-blocking):', sheetError);
           });
       }
     });
