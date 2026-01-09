@@ -130,16 +130,16 @@ export default async function handler(
     const inscritoRecord = inscrito as IscritoRecord;
 
     // Check if email already sent (idempotency)
-    // if (inscritoRecord.email_sent) {
-    //   console.log('Email already sent for registration:', inscritoRecord.id);
-    //   return res.status(200).json({
-    //     success: true,
-    //     paymentId,
-    //     inscritoId: inscritoRecord.id,
-    //     message: 'Email already sent for this registration',
-    //     alreadySent: true
-    //   });
-    // }
+    if (inscritoRecord.email_sent) {
+      console.log('Email already sent for registration:', inscritoRecord.id);
+      return res.status(200).json({
+        success: true,
+        paymentId,
+        inscritoId: inscritoRecord.id,
+        message: 'Email already sent for this registration',
+        alreadySent: true
+      });
+    }
 
     // Send confirmation email
     try {

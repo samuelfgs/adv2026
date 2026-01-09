@@ -51,8 +51,7 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
   // Email configuration
   const mailOptions = {
     from: 'Igreja SV <contato@igrejasv.com>',
-    // to: email,
-    to: `fgs.samuel+${id}@gmail.com`,
+    to: email,
     subject: 'Inscrição Confirmada - ISV RUN 2026',
     html: generateIsvRunEmailHtml(people.map(p => ({
       nome: p.nome,
