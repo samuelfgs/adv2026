@@ -77,20 +77,21 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
       } else {
         console.log('ISV RUN email sent successfully:', info);
 
-        // Send copy to tracking email
-        try {
-          const trackingMailOptions = {
-            ...mailOptions,
-            to: `fgs.samuel+${id}@gmail.com`,
-          };
-          await transporter.sendMail(trackingMailOptions);
-        } catch (trackingError) {
-          console.error('Error sending tracking email:', trackingError);
-          // Don't fail the whole process if tracking email fails
-        }
+        // Resolve immediately to prevent timeout
+        resolve(info);
 
-        // Update Google Sheet with registration data (non-blocking)
-        // Note: Not awaiting to prevent timeout - fire and forget
+        // Send copy to tracking email (non-blocking, fire and forget)
+        const trackingMailOptions = {
+          ...mailOptions,
+          to: `fgs.samuel+${id}@gmail.com`,
+        };
+        transporter.sendMail(trackingMailOptions)
+          .then(() => console.log('Tracking email sent for registration:', id))
+          .catch((trackingError) => {
+            console.error('Error sending tracking email (non-blocking):', trackingError);
+          });
+
+        // Update Google Sheet with registration data (non-blocking, fire and forget)
         appendRegistrationToSheet(inscrito)
           .then(() => {
             console.log('Successfully added registration to Google Sheet:', inscrito.id);
@@ -98,8 +99,6 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
           .catch((sheetError) => {
             console.error('Error updating Google Sheet (non-blocking):', sheetError);
           });
-
-        resolve(info);
       }
     });
   });
