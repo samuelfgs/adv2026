@@ -17,6 +17,8 @@ export default async function handler(
     });
   }
 
+  const startTime = Date.now();
+
   try {
     // // Extract webhook headers
     // const signature = req.headers['x-signature'] as string;
@@ -54,9 +56,10 @@ export default async function handler(
 
     const { id, topic } = req.query;
 
-    console.log('Webhook received:', {
+    console.log('[WEBHOOK] Received:', {
       query: req.query,
       body: req.body,
+      timestamp: new Date().toISOString()
     });
 
     // Only process payment notifications
@@ -138,11 +141,14 @@ export default async function handler(
     //   });
     // }
 
+    // Send confirmation email
     try {
+      const emailStart = Date.now();
       await sendIsvRunEmail(inscritoRecord);
-      console.log('Confirmation email sent successfully to:', inscritoRecord.email);
+      const emailDuration = Date.now() - emailStart;
+      console.log(`[WEBHOOK] Email sent in ${emailDuration}ms to:`, inscritoRecord.email);
     } catch (emailError: any) {
-      console.error('Error sending email:', emailError);
+      console.error('[WEBHOOK] Error sending email:', emailError);
       return res.status(500).json({
         success: false,
         paymentId,
@@ -158,7 +164,7 @@ export default async function handler(
       .eq('id', inscritoRecord.id);
 
     if (updateError) {
-      console.error('Error updating email_sent flag:', updateError);
+      console.error('[WEBHOOK] Error updating email_sent flag:', updateError);
       // Email was sent, but flag update failed - log but don't fail the request
       // This prevents resending if webhook is retried
       return res.status(500).json({
@@ -169,7 +175,8 @@ export default async function handler(
       });
     }
 
-    console.log('Webhook processed successfully for registration:', inscritoRecord.id);
+    const totalDuration = Date.now() - startTime;
+    console.log(`[WEBHOOK] ✓ Processed successfully in ${totalDuration}ms for registration:`, inscritoRecord.id);
 
     // Success response
     return res.status(200).json({
@@ -180,7 +187,8 @@ export default async function handler(
     });
 
   } catch (error: any) {
-    console.error('Unexpected error in webhook handler:', error);
+    const totalDuration = Date.now() - startTime;
+    console.error(`[WEBHOOK] Unexpected error after ${totalDuration}ms:`, error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error'

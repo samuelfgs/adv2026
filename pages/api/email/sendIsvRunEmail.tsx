@@ -89,14 +89,15 @@ export const sendIsvRunEmail = async (inscrito: IscritoRecord) => {
           // Don't fail the whole process if tracking email fails
         }
 
-        // Update Google Sheet with registration data
-        try {
-          await appendRegistrationToSheet(inscrito);
-          console.log('Successfully added registration to Google Sheet:', inscrito.id);
-        } catch (sheetError) {
-          console.error('Error updating Google Sheet (non-blocking):', sheetError);
-          // Don't fail email sending if sheet update fails
-        }
+        // Update Google Sheet with registration data (non-blocking)
+        // Note: Not awaiting to prevent timeout - fire and forget
+        appendRegistrationToSheet(inscrito)
+          .then(() => {
+            console.log('Successfully added registration to Google Sheet:', inscrito.id);
+          })
+          .catch((sheetError) => {
+            console.error('Error updating Google Sheet (non-blocking):', sheetError);
+          });
 
         resolve(info);
       }
