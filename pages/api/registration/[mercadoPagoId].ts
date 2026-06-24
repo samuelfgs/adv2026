@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
+import { inscritosAd } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 interface RegistrationResponse {
   success: boolean;
@@ -31,14 +33,28 @@ export default async function handler(
   }
 
   try {
-    const { data, error } = await supabase
-      .from('inscritos_ad')
-      .select('id, name, email, cpf, mercado_pago_id, metadata, kids, qtt')
-      .eq('mercado_pago_id', mercadoPagoId)
-      .single();
+    let data;
+    try {
+      const results = await db
+        .select({
+          id: inscritosAd.id,
+          name: inscritosAd.name,
+          email: inscritosAd.email,
+          cpf: inscritosAd.cpf,
+          mercado_pago_id: inscritosAd.mercadoPagoId,
+          metadata: inscritosAd.metadata,
+          kids: inscritosAd.kids,
+          qtt: inscritosAd.qtt,
+        })
+        .from(inscritosAd)
+        .where(eq(inscritosAd.mercadoPagoId, mercadoPagoId))
+        .limit(1);
+      data = results[0];
+    } catch (err: any) {
+      console.error('Error fetching registration:', err);
+    }
 
-    if (error || !data) {
-      console.error('Error fetching registration:', error);
+    if (!data) {
       return res.status(404).json({
         success: false,
         error: 'Registration not found'
@@ -48,11 +64,11 @@ export default async function handler(
     return res.status(200).json({
       success: true,
       data: {
-        id: data.id,
+        id: String(data.id),
         nome: data.name,
         email: data.email,
         cpf: data.cpf,
-        mercado_pago_id: data.mercado_pago_id,
+        mercado_pago_id: data.mercado_pago_id || '',
         metadata: data.metadata,
         kids: data.kids,
         qtt: data.qtt,

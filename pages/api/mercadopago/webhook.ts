@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { payment } from '@/lib/mercadopago';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
+import { inscritosAd } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { verifyWebhookSignature } from '@/lib/webhook-verification';
 import { sendIsvRunEmail } from '../email/sendIsvRunEmail';
 import type { WebhookPayload, IscritoRecord, WebhookResponse } from './webhook/types';
@@ -112,14 +114,20 @@ export default async function handler(
       });
     }
 
-    const { data: inscrito, error: dbError } = await supabase
-      .from('inscritos_ad')
-      .select('*')
-      .eq('mercado_pago_id', externalReference)
-      .single();
+    let inscrito;
+    try {
+      const results = await db
+        .select()
+        .from(inscritosAd)
+        .where(eq(inscritosAd.mercadoPagoId, externalReference))
+        .limit(1);
+      inscrito = results[0];
+    } catch (err: any) {
+      console.error('Database query error:', err);
+    }
 
-    if (dbError || !inscrito) {
-      console.error('Registration not found for external_reference:', externalReference, dbError);
+    if (!inscrito) {
+      console.error('Registration not found for external_reference:', externalReference);
       return res.status(404).json({
         success: false,
         paymentId,
@@ -127,7 +135,18 @@ export default async function handler(
       });
     }
 
-    const inscritoRecord = inscrito as IscritoRecord;
+    const inscritoRecord: IscritoRecord = {
+      id: inscrito.id,
+      name: inscrito.name,
+      cpf: inscrito.cpf,
+      email: inscrito.email,
+      telefone: inscrito.telefone || undefined,
+      qtt: inscrito.qtt,
+      kids: inscrito.kids,
+      mercado_pago_id: inscrito.mercadoPagoId || '',
+      email_sent: inscrito.emailSent || false,
+      metadata: inscrito.metadata as any,
+    };
 
     // Check if email already sent (idempotency)
     if (inscritoRecord.email_sent) {
@@ -158,10 +177,16 @@ export default async function handler(
     }
 
     // Update database to mark email as sent
-    const { error: updateError } = await supabase
-      .from('inscritos_ad')
-      .update({ email_sent: true })
-      .eq('id', inscritoRecord.id);
+    let updateError = null;
+    try {
+      await db
+        .update(inscritosAd)
+        .set({ emailSent: true })
+        .where(eq(inscritosAd.id, inscritoRecord.id));
+    } catch (err: any) {
+      console.error('[WEBHOOK] Error updating database:', err);
+      updateError = err;
+    }
 
     if (updateError) {
       console.error('[WEBHOOK] Error updating email_sent flag:', updateError);

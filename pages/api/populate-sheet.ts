@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
+import { inscritosAd } from '@/lib/db/schema';
+import { eq, asc } from 'drizzle-orm';
 import { clearSheetData, bulkPopulateSheet } from '@/lib/google-sheets';
 import type { IscritoRecord } from './mercadopago/webhook/types';
 
@@ -70,20 +72,34 @@ export default async function handler(
 
     // Step 2: Fetch all registrations where email was sent
     console.log('Fetching all registrations from database...');
-    const { data: inscritos, error: dbError } = await supabase
-      .from('inscritos_ad')
-      .select('*')
-      .eq('email_sent', true)
-      .order('created_at', { ascending: true });
-
-    if (dbError) {
-      console.error('Error fetching registrations from database:', dbError);
+    let inscritosList;
+    try {
+      inscritosList = await db
+        .select()
+        .from(inscritosAd)
+        .where(eq(inscritosAd.emailSent, true))
+        .orderBy(asc(inscritosAd.createdAt));
+    } catch (err: any) {
+      console.error('Error fetching registrations from database:', err);
       return res.status(500).json({
         success: false,
         message: 'Failed to fetch registrations from database',
-        error: dbError.message,
+        error: err.message,
       });
     }
+
+    const inscritos: IscritoRecord[] = inscritosList.map((i: any) => ({
+      id: i.id,
+      name: i.name,
+      cpf: i.cpf,
+      email: i.email,
+      telefone: i.telefone || undefined,
+      qtt: i.qtt,
+      kids: i.kids,
+      mercado_pago_id: i.mercadoPagoId || '',
+      email_sent: i.emailSent || false,
+      metadata: i.metadata as any,
+    }));
 
     if (!inscritos || inscritos.length === 0) {
       console.log('No registrations found with email_sent = true');
@@ -109,7 +125,7 @@ export default async function handler(
 
     // Step 3: Populate sheet with all data
     console.log('Populating sheet with registration data...');
-    const participantsAdded = await bulkPopulateSheet(inscritos as IscritoRecord[]);
+    const participantsAdded = await bulkPopulateSheet(inscritos);
 
     const warnings: string[] = [];
     if (skippedCount > 0) {
