@@ -5,11 +5,15 @@ import { formatPrice } from "../../lib/price-formatter";
 interface RegistrationFormProps {
   onSubmit: (data: FormData) => void;
   openTerms: () => void;
+  apiEndpoint?: string;
+  ticketPriceOverride?: number;
 }
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({
   onSubmit,
   openTerms,
+  apiEndpoint = "/api/register",
+  ticketPriceOverride,
 }) => {
   const [formData, setFormData] = useState<FormData>({
     nome: "",
@@ -74,7 +78,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setErrors({});
 
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -94,7 +98,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const ticketPrice = +(process.env.NEXT_PUBLIC_PRICE || "25");
+  const ticketPrice = ticketPriceOverride !== undefined
+    ? ticketPriceOverride
+    : +(process.env.NEXT_PUBLIC_PRICE || "25");
 
   return (
     <form
