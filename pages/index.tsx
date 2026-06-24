@@ -135,7 +135,7 @@ const ADVPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
             {[
               { name: 'DANIEL SOUZA', role: 'LOUVOR / PALAVRA', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800' },
-              { name: 'JAN GOTTFRIDSON', role: 'PALAVRA', img: 'https://images.unsplash.com/photo-1471967183320-ee018f6e114a?auto=format&fit=crop&q=80&w=800' },
+              { name: 'JAN GOTTFRIDSON', role: 'PALAVRA', img: '/jan_gottfridson.jpg' },
               { name: 'ASAPH BORBA', role: 'LOUVOR / PALAVRA', img: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800' }
             ].map((speaker, i) => (
               <div key={i} className="group relative text-center">
