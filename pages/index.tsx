@@ -138,7 +138,7 @@ const ADVPage: React.FC = () => {
               { name: 'JAN GOTTFRIDSON', role: 'PALAVRA', img: 'https://images.unsplash.com/photo-1471967183320-ee018f6e114a?auto=format&fit=crop&q=80&w=800' },
               { name: 'ASAPH BORBA', role: 'LOUVOR / PALAVRA', img: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800' }
             ].map((speaker, i) => (
-              <div key={i} className="group relative">
+              <div key={i} className="group relative text-center">
                 <div className="aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-100 mb-4 md:mb-6 border border-slate-100 grayscale hover:grayscale-0 transition-all duration-700">
                   <img src={speaker.img} alt={speaker.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 </div>
