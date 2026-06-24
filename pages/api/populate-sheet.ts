@@ -71,7 +71,7 @@ export default async function handler(
     // Step 2: Fetch all registrations where email was sent
     console.log('Fetching all registrations from database...');
     const { data: inscritos, error: dbError } = await supabase
-      .from('inscritos')
+      .from('inscritos_ad')
       .select('*')
       .eq('email_sent', true)
       .order('created_at', { ascending: true });

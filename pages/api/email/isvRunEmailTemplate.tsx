@@ -1,61 +1,70 @@
-import ReactDOMServer from 'react-dom/server';
-import { Html } from '@react-email/html';
-import { Text } from '@react-email/text';
-import { Img } from "@react-email/img";
 
-interface ParticipantInfo {
+import React from 'react';
+
+interface EmailTemplateProps {
+  registrationId: string;
   nome: string;
-  modalidade: 'walk' | 'run';
-  shirtSize: string;
+  email: string;
+  quantity: number;
+  totalPrice: string;
+  kids?: number;
 }
 
-interface IsvRunEmailTemplateProps {
-  people: ParticipantInfo[];
-}
+export const ADVEmailTemplate: React.FC<EmailTemplateProps> = ({
+  registrationId,
+  nome,
+  quantity,
+  totalPrice,
+  kids,
+}) => (
+  <div style={{
+    fontFamily: 'sans-serif',
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#ffffff',
+    color: '#333333'
+  }}>
+    <div style={{
+      textAlign: 'center',
+      padding: '40px 0',
+      backgroundColor: '#000000',
+      borderRadius: '20px 20px 0 0'
+    }}>
+      <h1 style={{ color: '#F29100', margin: 0, fontSize: '32px' }}>AD 2026</h1>
+      <p style={{ color: '#ffffff', margin: '10px 0 0 0', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px' }}>
+        Conferência Adoração e Discipulado
+      </p>
+    </div>
 
-const IsvRunEmailTemplate = ({ people }: IsvRunEmailTemplateProps) => (
-  <Html>
-    <Text style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
-      ISV RUN 2026
-    </Text>
-    <Text>
-      Parabéns! Sua inscrição foi confirmada com sucesso.
-    </Text>
-    <Text>
-      Data: <b>07 de Fevereiro de 2026</b>
-      <br />
-      Horário: <b>18:30</b>
-      <br />
-      Local: <b>Canto do Ilha Porchat</b>
-    </Text>
-    <Text style={{ marginTop: "20px", fontWeight: "bold" }}>
-      {people.length === 1 ? 'Participante:' : 'Participantes:'}
-    </Text>
-    {people.map((person, index) => (
-      <Text key={index} style={{ marginLeft: "20px", marginBottom: "10px" }}>
-        <b>{person.nome}</b>
-        <br />
-        Modalidade: {person.modalidade === 'run' ? 'Corrida 5km' : 'Caminhada 5km'}
-        <br />
-        Tamanho da Camisa: {person.shirtSize.toUpperCase()}
-      </Text>
-    ))}
-    <Text style={{ marginTop: "20px" }}>
-      Em <b>anexo</b> está o QR Code e o comprovante da sua inscrição!
-      <br />
-      Gostaríamos de informar que, para garantir uma experiência segura e eficiente, a apresentação do QR Code é indispensável no momento do check-in. Portanto, solicitamos que você tenha o QR Code em mãos, seja em formato digital no seu dispositivo móvel ou impresso em papel, para facilitar a identificação e registro durante a entrada do evento.
-    </Text>
-    <Text>
-      Nos vemos no dia da corrida!
-    </Text>
-    <Text>
-      Igreja em SV
-    </Text>
-    <Img src={"https://igrejasv.com/icons/isv.png"} width={100} height={100} />
-  </Html>
+    <div style={{ padding: '40px 20px', border: '1px solid #eeeeee', borderRadius: '0 0 20px 20px' }}>
+      <h2 style={{ fontSize: '24px', margin: '0 0 20px 0' }}>Sua compra foi confirmada!</h2>
+      <p>Olá <strong>{nome}</strong>,</p>
+      <p>Recebemos seu pagamento para a conferência <strong>AD 2026 - Adoração, Discipulado e a estratégia de Jesus</strong>.</p>
+
+      <div style={{ backgroundColor: '#fff9f0', padding: '20px', borderRadius: '15px', marginTop: '30px' }}>
+        <h3 style={{ fontSize: '18px', color: '#F29100', margin: '0 0 15px 0' }}>Resumo do Pedido</h3>
+        <p style={{ margin: '5px 0' }}><strong>ID do Pedido:</strong> {registrationId}</p>
+        <p style={{ margin: '5px 0' }}><strong>Quantidade:</strong> {quantity} {quantity === 1 ? 'ingresso' : 'ingressos'}</p>
+        {kids && kids > 0 ? (
+          <p style={{ margin: '5px 0' }}><strong>Crianças (3-10 anos):</strong> {kids} {kids === 1 ? 'criança' : 'crianças'}</p>
+        ) : null}
+        <p style={{ margin: '5px 0' }}><strong>Valor Total:</strong> {totalPrice}</p>
+        <p style={{ margin: '5px 0' }}><strong>Data:</strong> 31 Julho a 02 Agosto</p>
+        <p style={{ margin: '5px 0' }}><strong>Local:</strong> ISV São Vicente</p>
+      </div>
+
+      <div style={{ marginTop: '40px', textAlign: 'center' }}>
+        <p style={{ fontSize: '14px', color: '#666666' }}>
+          Para acessar seu voucher e QR Code, acesse nossa página de confirmação.
+        </p>
+        <p style={{ fontSize: '16px', fontWeight: 'bold' }}>Apresente seu QR Code na entrada do evento.</p>
+      </div>
+    </div>
+
+    <div style={{ textAlign: 'center', marginTop: '30px', color: '#999999', fontSize: '12px' }}>
+      <p>Igreja em São Vicente - ISV</p>
+      <p>Rua Jardel França, 18 - São Vicente/SP</p>
+    </div>
+  </div>
 );
-
-export const generateIsvRunEmailHtml = (people: ParticipantInfo[]) => {
-  const html = ReactDOMServer.renderToStaticMarkup(<IsvRunEmailTemplate people={people} /> as any);
-  return `<!DOCTYPE html>${html}`;
-};

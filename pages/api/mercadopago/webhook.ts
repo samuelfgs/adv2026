@@ -113,7 +113,7 @@ export default async function handler(
     }
 
     const { data: inscrito, error: dbError } = await supabase
-      .from('inscritos')
+      .from('inscritos_ad')
       .select('*')
       .eq('mercado_pago_id', externalReference)
       .single();
@@ -159,7 +159,7 @@ export default async function handler(
 
     // Update database to mark email as sent
     const { error: updateError } = await supabase
-      .from('inscritos')
+      .from('inscritos_ad')
       .update({ email_sent: true })
       .eq('id', inscritoRecord.id);
 

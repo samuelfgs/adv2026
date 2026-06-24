@@ -20,7 +20,7 @@ export default async function handler(
 
     // Fetch user from database
     const { data: inscrito, error: fetchError } = await supabase
-      .from('inscritos')
+      .from('inscritos_ad')
       .select('*')
       .eq('id', id)
       .single();

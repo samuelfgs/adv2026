@@ -22,159 +22,66 @@ const styles = StyleSheet.create({
   },
 });
 
-interface ParticipantData {
+interface ComprovanteADVProps {
   nome: string;
   cpf: string;
-  dataNascimento: string;
-  gender: string;
-  shirtSize: string;
-  modalidade: 'walk' | 'run';
-}
-
-interface ParticipantWithQR extends ParticipantData {
+  telefone: string;
+  email: string;
+  quantity: number;
   qrCodeSvg: any;
 }
 
-interface ComprovanteRunProps {
-  people: ParticipantWithQR[];
-  email: string;
-}
-
-export const ComprovanteRun = (props: ComprovanteRunProps) => {
-  const { people, email } = props;
+export const ComprovanteADV = (props: ComprovanteADVProps) => {
+  const { nome, cpf, email, quantity, qrCodeSvg, telefone } = props;
   const idx = email.indexOf("@");
 
   return (
     <Document>
-      {people.map((person, index) => (
-        <Page key={index} size="A4" style={styles.page}>
-          <View style={styles.section}>
-            <Text>Comprovante de Inscrição</Text>
-            <View
-              style={{
-                display: "flex",
-                gap: 15,
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  gap: 5,
-                  alignItems: "flex-start",
-                }}
-              >
-                <Text>ISV RUN 2026</Text>
-                <Text style={{ color: "#8d8d8d" }}>Igreja em São Vicente</Text>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  gap: 5,
-                  alignItems: "flex-start",
-                }}
-              >
-                <Text>Modalidade: {person.modalidade === 'run' ? 'Corrida 5km' : 'Caminhada 5km'}</Text>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  gap: 15,
-                }}
-              >
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <Image
-                    source={"https://construcao.igrejasv.com/calendar.png"}
-                    style={{ width: 30, height: 30 }}
-                  />
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    <Text>07 de Fevereiro de 2026</Text>
-                    <Text>18:30</Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <Image
-                    source={"https://construcao.igrejasv.com/marker.png"}
-                    style={{ width: 30, height: 30 }}
-                  />
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    <Text>Canto do Ilha Porchat</Text>
-                    <Text>São Vicente</Text>
-                  </View>
-                </View>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                }}
-              >
-                <View style={{ display: "flex", lineHeight: 1.5 }}>
-                  <Text style={{ color: "#8d8d8d" }}>E-mail de Contato</Text>
-                  <Text>
-                    {email.slice(0, 3) +
-                      "******" +
-                      email.slice(idx - 1)}
-                  </Text>
-                </View>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.section}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Voucher de Inscrição</Text>
+          <View style={{ display: "flex", gap: 15 }}>
+            <View style={{ display: "flex", gap: 5, alignItems: "flex-start" }}>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#F29100' }}>AD 2026</Text>
+              <Text style={{ color: "#8d8d8d" }}>Igreja em São Vicente - Conferência Adoração e Discipulado</Text>
+            </View>
 
-                <View style={{ display: "flex", lineHeight: 1.5, gap: 10 }}>
-                  <Text style={{ color: "#8d8d8d" }}>Participante</Text>
-                  <View style={{ display: "flex", gap: 5, paddingLeft: 10 }}>
-                    <Text style={{ fontWeight: 'bold' }}>{person.nome}</Text>
-                    <Text style={{ fontSize: 12 }}>
-                      CPF: {person.cpf.slice(0, 3) + "*******" + person.cpf.slice(-2)}
-                    </Text>
-                    <Text style={{ fontSize: 12 }}>
-                      Modalidade: {person.modalidade === 'run' ? 'Corrida 5km' : 'Caminhada 5km'}
-                    </Text>
-                    <Text style={{ fontSize: 12 }}>
-                      Tamanho da Camisa: {person.shirtSize.toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={{ display: "flex", alignItems: "center" }}>
-                  <Image source={person.qrCodeSvg} style={{ width: 150, height: 150 }} />
-                </View>
+            <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-around", gap: 15, marginTop: 10, marginBottom: 10 }}>
+              <View style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.5 }}>
+                <Text style={{ fontWeight: 'bold' }}>31 Jul - 02 Ago, 2026</Text>
+              </View>
+              <View style={{ display: "flex", flexDirection: "column", lineHeight: 1.5 }}>
+                <Text style={{ fontWeight: 'bold' }}>ISV São Vicente</Text>
+                <Text>São Vicente, SP</Text>
               </View>
             </View>
-            <View style={{ display: "flex", alignItems: "center" }}>
-              <Image
-                source="https://ad20.igrejasv.com/plasmic/a_d_2/images/isv.png"
-                style={{ width: 100, height: 100 }}
-              />
+
+            <View style={{ display: "flex", alignItems: "flex-start", gap: 20 }}>
+              <View style={{ display: "flex", lineHeight: 1.5 }}>
+                <Text style={{ color: "#8d8d8d" }}>Comprador</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{nome}</Text>
+                <Text style={{ fontSize: 12 }}>CPF: {cpf.slice(0, 3) + "*******" + cpf.slice(-2)}</Text>
+                <Text style={{ fontSize: 12 }}>E-mail: {email.slice(0, 3) + "******" + email.slice(idx - 1)}</Text>
+                <Text style={{ fontSize: 12 }}>Tel: {telefone}</Text>
+              </View>
+
+              <View style={{ width: '100%', padding: 15, backgroundColor: '#fff9f0', borderRadius: 10, border: '1px solid #F29100' }}>
+                <Text style={{ color: '#F29100', fontWeight: 'bold' }}>ITENS DO PEDIDO</Text>
+                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                  <Text>Passaporte AD 2026</Text>
+                  <Text style={{ fontWeight: 'bold' }}>{quantity}x</Text>
+                </View>
+              </View>
+
+              <View style={{ display: "flex", alignItems: "center", width: '100%', marginTop: 20 }}>
+                <Text style={{ fontSize: 10, color: '#8d8d8d', marginBottom: 10 }}>QR CODE DE ACESSO</Text>
+                <Image source={qrCodeSvg} style={{ width: 180, height: 180 }} />
+                <Text style={{ fontSize: 10, color: '#8d8d8d', marginTop: 10 }}>Válido para {quantity} entrada(s)</Text>
+              </View>
             </View>
           </View>
-        </Page>
-      ))}
+        </View>
+      </Page>
     </Document>
   );
 };

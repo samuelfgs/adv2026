@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -21,6 +25,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/qrcode": "^1.5.5",
     "antd": "^5.20.1",
+    "drizzle-orm": "^0.45.2",
     "email-validator": "^2.0.4",
     "google-apis": "^1.0.0",
     "google-auth-library": "^9.13.0",
@@ -29,6 +34,7 @@
     "nanoid": "^5.0.7",
     "next": "14.2.5",
     "nodemailer": "^6.9.14",
+    "postgres": "^3.4.9",
     "qrcode": "^1.5.4",
     "qrcode.react": "^3.1.0",
     "react": "^18",
@@ -43,10 +49,13 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.17",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

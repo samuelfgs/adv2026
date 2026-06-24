@@ -8,32 +8,35 @@ export interface WebhookPayload {
 }
 
 export interface IscritoRecord {
-  id: string;
-  nome: string;
+  id: number;
+  name: string;
   cpf: string;
   email: string;
+  telefone?: string;
+  qtt: number;
+  kids: number;
   mercado_pago_id: string;
   email_sent: boolean;
   metadata: {
-    dataNascimento: string;
-    price: number;
-    init_point: string;
-    people: Array<{
+    payer: {
       nome: string;
       cpf: string;
-      dataNascimento: string;
-      gender: string;
-      shirtSize: string;
-      modalidade: 'walk' | 'run';
-    }>;
-    modalidadeDescription: string;
+      email: string;
+      telefone: string;
+    };
+    qtt: number;
+    kids?: number;
+    basePrice: number;
+    totalPrice: number;
+    event: string;
+    init_point: string;
   };
 }
 
 export interface WebhookResponse {
   success: boolean;
   paymentId?: string;
-  inscritoId?: string;
+  inscritoId?: number;
   message: string;
   alreadySent?: boolean;
 }

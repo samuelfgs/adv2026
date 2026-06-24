@@ -5,7 +5,7 @@ import TermsModal from '../components/isv-run/TermsModal';
 import { FormData } from '../types/isv-run';
 import { formatPrice } from '../lib/price-formatter';
 
-const IsvRun: React.FC = () => {
+const ADVPage: React.FC = () => {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [userName, setUserName] = useState('');
@@ -28,45 +28,40 @@ const IsvRun: React.FC = () => {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
         <div className="max-w-md w-full space-y-8">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-blue-400 blur-3xl opacity-20 rounded-full animate-pulse"></div>
-            <div className="relative w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="absolute inset-0 bg-orange-400 blur-3xl opacity-20 rounded-full animate-pulse"></div>
+            <div className="relative w-20 h-20 md:w-24 md:h-24 bg-[#F29100] text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 md:h-12 md:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold text-slate-900">Vaga Reservada!</h1>
-            <p className="text-lg text-slate-600">
-              Que alegria ter você conosco, <span className="text-blue-600 font-bold">{userName}</span>!
-              A <span className="font-bold">Igreja em São Vicente</span> recebeu seu pedido. Verifique seu e-mail para as instruções de pagamento.
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Inscrição Confirmada!</h1>
+            <p className="text-base md:text-lg text-slate-600">
+              Que alegria ter você conosco, <span className="text-[#F29100] font-bold">{userName}</span>!
+              Sua vaga para o <span className="font-bold text-slate-900">AD 2026</span> está reservada.
             </p>
           </div>
 
-          <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100 shadow-sm space-y-4">
+          <div className="bg-slate-50 rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
             <div className="flex justify-between items-center text-left">
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Encontro Marcado</p>
-                <p className="text-xl font-bold text-slate-900">07 de Fevereiro</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data</p>
+                <p className="text-lg font-bold text-slate-900">31 Jul - 02 Ago</p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Valor</p>
-                <p className="text-xl font-bold text-blue-600">{formatPrice(process.env.NEXT_PUBLIC_PRICE || '70')}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Local</p>
+                <p className="text-lg font-bold text-[#F29100]">ISV SP</p>
               </div>
-            </div>
-            <div className="h-px bg-slate-200 w-full"></div>
-            <div className="text-left">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Localização</p>
-              <p className="text-lg font-bold text-slate-900">Praia Central (Posto 2), São Vicente</p>
             </div>
           </div>
 
           <button
             onClick={() => setSubmitted(false)}
-            className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-xl active:scale-95"
+            className="w-full py-4 bg-black text-white font-bold rounded-2xl hover:bg-slate-900 transition-all shadow-xl active:scale-95"
           >
-            Inscrito! Voltar ao Início
+            Voltar ao Início
           </button>
         </div>
       </div>
@@ -74,270 +69,191 @@ const IsvRun: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white font-sans text-slate-900">
       {/* Sticky Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-lg border-b border-slate-200 py-3 shadow-sm' : 'bg-transparent py-6'}`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-lg border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-4 md:py-6'}`}>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex justify-between items-center">
           <div className="flex flex-col">
-            <div className={`font-black text-2xl tracking-tighter transition-colors ${scrolled ? 'text-blue-600' : 'text-white'}`}>
-              ISV<span className={scrolled ? 'text-slate-900' : 'text-blue-400'}>RUN</span>
+            <div className="font-black text-xl md:text-2xl tracking-tighter text-black">
+              AD<span className="text-[#F29100]">2026</span>
             </div>
-            <div className={`text-[10px] font-bold uppercase tracking-widest transition-opacity ${scrolled ? 'text-slate-400' : 'text-white/60'}`}>
+            <div className="hidden xs:block text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Igreja em São Vicente
             </div>
           </div>
+          <a href="#inscricao" className={`px-4 md:px-6 py-2 md:py-2.5 rounded-full font-bold text-xs md:text-sm transition-all ${scrolled ? 'bg-[#F29100] text-white' : 'bg-black text-white shadow-lg'}`}>
+            Inscrever-se
+          </a>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-[90vh] min-h-[600px] w-full flex items-end overflow-hidden">
+      <section className="relative min-h-[100svh] w-full flex items-center justify-center overflow-hidden bg-white text-slate-900 pt-20">
         <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80&w=2000"
-            alt="Igreja em São Vicente Corrida"
-            className="w-full h-full object-cover animate-in fade-in duration-1000"
-          />
-          <div className="absolute inset-0 hero-gradient"></div>
+           <img 
+             src="/wallpaper.jpg" 
+             alt="AD 2026 Background" 
+             className="w-full h-full object-cover opacity-20 grayscale-[0.5] mix-blend-multiply"
+           />
+           <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/40 to-white"></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto w-full px-6 pb-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
-          <div className="space-y-6 animate-in slide-in-from-left-10 duration-700">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600/90 text-white text-xs font-black uppercase tracking-[0.2em] rounded-lg backdrop-blur-md">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-              Igreja em São Vicente
+        <div className="relative max-w-7xl mx-auto w-full px-4 md:px-6 text-center space-y-6 md:space-y-8">
+          <div className="inline-flex items-center gap-2 md:gap-3 px-3 md:px-4 py-1.5 md:py-2 bg-[#F29100] text-white text-[9px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] rounded-full animate-in fade-in slide-in-from-top-4 duration-700">
+            CONFERÊNCIA ADORAÇÃO E DISCIPULADO 2026
+          </div>
+          <h1 className="text-4xl sm:text-6xl md:text-9xl font-black leading-[1] md:leading-[0.85] tracking-tighter animate-in fade-in zoom-in duration-1000 text-slate-900">
+            DISCIPULADO <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F29100] to-orange-600">E A ESTRATÉGIA</span> <br className="hidden sm:block" />
+            DE JESUS
+          </h1>
+          <div className="pt-4 md:pt-8 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+            <div className="flex items-center gap-4 text-left border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0 md:pr-8">
+              <div className="text-2xl md:text-3xl font-black text-[#F29100] leading-tight">31 JUL - 02 AGO</div>
+              <div className="text-base font-black text-slate-400 uppercase tracking-[0.2em] leading-tight">2026</div>
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter">
-              FÉ, COMUNHÃO <br/> E <span className="text-blue-400">ENERGIA.</span>
-            </h1>
-            <p className="text-xl text-slate-300 max-w-md font-medium leading-relaxed">
-              Uma corrida de gratidão e comunhão com toda nossa comunidade.
-            </p>
+            <div className="text-center md:text-left">
+              <p className="text-base md:text-lg font-bold text-slate-900 leading-tight">ISV São Vicente</p>
+              <p className="text-[10px] md:text-sm text-slate-500 uppercase tracking-widest font-bold">São Vicente, SP</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 animate-bounce text-slate-300">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7-7-7m14-8l-7 7-7-7"/></svg>
+        </div>
+      </section>
+
+      {/* Speakers Section */}
+      <section className="py-20 md:py-32 px-4 md:px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col items-center text-center mb-12 md:mb-20 space-y-3 md:space-y-4">
+            <h2 className="text-4xl md:text-7xl font-black tracking-tighter">PRELETORES</h2>
+            <div className="h-1.5 md:h-2 w-16 md:w-24 bg-[#F29100] rounded-full"></div>
           </div>
 
-          <div className="hidden md:flex justify-end animate-in slide-in-from-right-10 duration-700">
-             <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] text-white space-y-4 shadow-2xl">
-               <div>
-                <div className="text-5xl font-black">18:30</div>
-                <div className="text-sm font-bold opacity-60 uppercase tracking-widest">Largada</div>
-               </div>
-               <div className="bg-blue-600 px-4 py-2 rounded-xl text-center">
-                 <span className="text-2xl font-black">{formatPrice(process.env.NEXT_PUBLIC_PRICE || '70')}</span>
-                 <p className="text-[10px] font-bold opacity-80 uppercase tracking-tighter">Inscrição Única</p>
-               </div>
-               <div className="pt-2 flex gap-4">
-                 <div className="h-10 w-10 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
-                   <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                 </div>
-                 <div className="text-sm">
-                   <p className="font-bold">Canto do Ilha Porchat</p>
-                   <p className="opacity-60 italic">São Vicente</p>
-                 </div>
-               </div>
-             </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+            {[
+              { name: 'DANIEL SOUZA', role: 'LOUVOR / PALAVRA', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=800' },
+              { name: 'JAN GOTTFRIDSON', role: 'PALAVRA', img: 'https://images.unsplash.com/photo-1471967183320-ee018f6e114a?auto=format&fit=crop&q=80&w=800' },
+              { name: 'ASAPH BORBA', role: 'LOUVOR / PALAVRA', img: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=800' }
+            ].map((speaker, i) => (
+              <div key={i} className="group relative">
+                <div className="aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-100 mb-4 md:mb-6 border border-slate-100 grayscale hover:grayscale-0 transition-all duration-700">
+                  <img src={speaker.img} alt={speaker.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-black tracking-tight">{speaker.name}</h3>
+                <p className="text-[10px] md:text-sm font-bold text-[#F29100] tracking-widest mt-1 uppercase">{speaker.role}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Official Announcement Section */}
-      <section className="bg-slate-50 py-24 px-6 border-y border-slate-100">
+      {/* Schedule Section */}
+      <section className="py-20 md:py-32 px-4 md:px-6 bg-slate-50 border-y border-slate-100">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-[3rem] p-4 md:p-16 shadow-2xl shadow-blue-900/5 border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
-            
-            <div className="relative">
-              <div className="flex flex-col items-center text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 text-xs font-black uppercase tracking-[0.2em] rounded-full mb-6">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                  </span>
-                  Comunicado Oficial
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-16 shadow-2xl shadow-orange-900/5 border border-slate-100">
+            <div className="text-center mb-10 md:mb-16">
+              <span className="text-[10px] md:text-xs font-black text-[#F29100] uppercase tracking-[0.4em]">Programação</span>
+              <h2 className="text-3xl md:text-5xl font-black mt-2 tracking-tighter text-slate-900">HORÁRIOS</h2>
+            </div>
+
+            <div className="space-y-10 md:space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest pb-2 border-b-2 border-slate-100">Sexta • 31/07</div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-black text-[#F29100] text-sm md:text-base">20:00</span>
+                    <span className="text-slate-600 font-medium text-sm md:text-base">Abertura</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-black text-[#F29100] text-sm md:text-base">22:00</span>
+                    <span className="text-slate-600 font-medium text-sm md:text-base">Encerramento</span>
+                  </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">
-                  ISV RUN <span className="text-blue-600">5K</span>
-                </h2>
-                <div className="h-1.5 w-20 bg-blue-600 rounded-full"></div>
+
+                <div className="space-y-3 md:space-y-4">
+                  <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest pb-2 border-b-2 border-slate-100">Sábado • 01/08</div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tarde</p>
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-[#F29100] text-sm md:text-base">16:00 - 18:00</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Noite</p>
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-[#F29100] text-sm md:text-base">19:30 - 22:00</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3 md:space-y-4">
+                  <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest pb-2 border-b-2 border-slate-100">Domingo • 02/08</div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-black text-[#F29100] text-sm md:text-base">10:00</span>
+                    <span className="text-slate-600 font-medium text-sm md:text-base">Início</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-black text-[#F29100] text-sm md:text-base">12:00</span>
+                    <span className="text-slate-600 font-medium text-sm md:text-base">Encerramento</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-12">
-                <p className="text-xl text-slate-600 leading-relaxed text-center font-medium">
-                  Informamos a todos os participantes que a <span className="text-slate-900 font-bold">ISV RUN 5K</span> acontecerá neste <span className="text-blue-600 font-bold">sábado, 07/02</span>. Pedimos atenção a todas as orientações para o bom andamento da prova.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                      </div>
-                      <h3 className="font-extrabold text-slate-900 text-2xl tracking-tight">Local</h3>
-                    </div>
-                    <div className="pl-16 space-y-2">
-                      <p className="font-bold text-slate-800 text-lg">Praia do Itararé</p>
-                      <p className="text-slate-500 font-medium">São Vicente (Canto do Ilha)</p>
-                      <div className="pt-2 space-y-1">
-                        <p className="text-sm flex items-center gap-2 text-slate-600"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> Percurso: ida até o emissário e retorno</p>
-                        <p className="text-sm flex items-center gap-2 text-slate-600"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span> Terreno: areia da praia</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                      </div>
-                      <h3 className="font-extrabold text-slate-900 text-2xl tracking-tight">Horários</h3>
-                    </div>
-                    <div className="pl-16 space-y-4">
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <p className="text-base"><strong className="text-slate-900 font-black">19:00</strong> — Concentração</p>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-base p-2.5 border-l-4 border-slate-200 bg-white shadow-sm rounded-r-lg">
-                          <span className="font-bold text-slate-700">Feminino 16-30</span>
-                          <span className="font-black text-slate-900">19:45</span>
-                        </div>
-                        <div className="flex items-center justify-between text-base p-2.5 border-l-4 border-yellow-400 bg-white shadow-sm rounded-r-lg">
-                          <span className="font-bold text-slate-700">Feminino 31+</span>
-                          <span className="font-black text-slate-900">20:00</span>
-                        </div>
-                        <div className="flex items-center justify-between text-base p-2.5 border-l-4 border-red-500 bg-white shadow-sm rounded-r-lg">
-                          <span className="font-bold text-slate-700">Masculino 16-30</span>
-                          <span className="font-black text-slate-900">20:15</span>
-                        </div>
-                        <div className="flex items-center justify-between text-base p-2.5 border-l-4 border-blue-500 bg-white shadow-sm rounded-r-lg">
-                          <span className="font-bold text-slate-700">Masculino 31+</span>
-                          <span className="font-black text-slate-900">20:30</span>
-                        </div>
-                        <div className="flex items-center justify-between text-base p-2.5 border-l-4 border-slate-400 bg-white shadow-sm rounded-r-lg">
-                          <span className="font-bold text-slate-700">Turma Pipoca</span>
-                          <span className="font-black text-slate-900">20:45</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                      </div>
-                      <h3 className="font-extrabold text-slate-900 text-2xl tracking-tight">Prova</h3>
-                    </div>
-                    <div className="pl-16 space-y-1">
-                      <p className="text-slate-800 font-bold text-lg">Distância: 5 KM</p>
-                      <p className="text-base text-slate-500 font-medium leading-relaxed">Público: membros da igreja, convidados e inscritos previamente.</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                      </div>
-                      <h3 className="font-extrabold text-slate-900 text-2xl tracking-tight">Kits</h3>
-                    </div>
-                    <div className="pl-16 space-y-3">
-                      <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                        <p className="text-base font-bold text-blue-900">Sexta-feira (06/02)</p>
-                        <p className="text-sm text-blue-700 font-medium">17h às 23h</p>
-                      </div>
-                      <a 
-                        href="https://www.google.com/maps/search/?api=1&query=Rua+Jardel+França+18+Cidade+Náutica+São+Vicente" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-1">
-                            Igreja ISV
-                          </span>
-                          <span className="text-sm text-slate-500 font-medium leading-relaxed">
-                            Rua Jardel França, 18<br/>
-                            Cidade Náutica<br />
-                            São Vicente<br />
-                            SP
-                          </span>
-                        </div>
-                      </a>
-                      <p className="text-[10px] text-red-600 font-black uppercase tracking-wider flex items-center gap-1 bg-red-50 p-2 rounded-lg border border-red-100">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
-                        Obrigatório apresentar documento com foto
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-12 border-t border-slate-100 flex flex-col items-center gap-4">
-                  <p className="text-slate-500 text-sm font-medium text-center italic">
-                    Contamos com a pontualidade de todos para que o evento aconteça com excelência, organização e segurança.
-                  </p>
-                  <div className="flex flex-col items-center">
-                    <div className="font-black text-xl tracking-tighter text-slate-900">
-                      ISV<span className="text-blue-600">SPORTS</span>
-                    </div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">
-                      ISV Run 5K
-                    </div>
-                  </div>
-                </div>
+              <div className="pt-6 md:pt-8 border-t border-slate-100 flex justify-center">
+                 <div className="flex items-center gap-2 md:gap-3 text-slate-400">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span className="text-[10px] md:text-sm font-bold">Igreja em São Vicente - ISV</span>
+                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Registration Content */}
-      <main id="inscricao" className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-12 gap-16">
-
-        {/* Info Column */}
-        <div className="lg:col-span-5 space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight">Caminhando Juntos</h2>
-            <div className="h-2 w-20 bg-blue-600 rounded-full"></div>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              O evento <strong className="font-bold text-slate-900">ISV RUN</strong> é realizado pela <strong className="font-bold text-slate-900">Igreja em São Vicente</strong> para promover a saúde e o convívio fraternal. O valor de <strong className="font-bold text-slate-900">{formatPrice(process.env.NEXT_PUBLIC_PRICE || '70')}</strong> cobre o kit e a infraestrutura da prova.
-            </p>
+      {/* Registration Section */}
+      <main id="inscricao" className="max-w-7xl mx-auto px-4 md:px-6 py-20 md:py-32 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+        <div className="lg:col-span-5 space-y-6 md:space-y-8">
+          <div className="space-y-3 md:space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">FAÇA SUA INSCRIÇÃO</h2>
+            <div className="h-1.5 md:h-2 w-16 md:w-20 bg-[#F29100] rounded-full"></div>
+            <div className="space-y-4">
+              <p className="text-xl font-extrabold text-slate-900 tracking-tight">
+                R$25 INSCRIÇÃO
+              </p>
+              <p className="text-base md:text-lg text-slate-600 leading-relaxed">
+                Junte-se a nós nesta jornada de discipulado. O valor da inscrição garante sua participação nos 3 dias de evento.
+              </p>
+              <div className="mt-4 p-5 rounded-3xl bg-slate-50 border border-slate-100 space-y-2">
+                <p className="text-sm font-bold text-slate-900">Valores e Regras:</p>
+                <ul className="text-xs md:text-sm text-slate-600 space-y-2 list-disc pl-5">
+                  <li><strong className="text-slate-800">A partir dos 11 anos:</strong> Paga o valor integral de <strong>R$ 25</strong>.</li>
+                  <li><strong className="text-slate-800">Crianças de 3 a 10 anos:</strong> Devem fazer a inscrição, mas <strong className="text-orange-600 font-bold">não pagam</strong>.</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-lg leading-tight">Evento Para a Família</h4>
-                <p className="text-slate-500 text-sm">Espaço aberto para todas as idades, da caminhada leve à corrida 5k.</p>
-              </div>
+          <div className="space-y-4 md:space-y-6">
+            <div className="p-5 md:p-6 rounded-3xl bg-slate-50 border border-slate-100">
+               <h4 className="font-bold text-slate-900 mb-1 md:mb-2 text-sm md:text-base">Dúvidas?</h4>
+               <p className="text-[11px] md:text-sm text-slate-500">Entre em contato pelo nosso Instagram ou visite-nos em nossa sede.</p>
             </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.705 2.705 0 01-3 0 2.701 2.701 0 01-3 0 2.701 2.701 0 01-3 0 2.704 2.704 0 01-1.5-.454M21 12.773c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.705 2.705 0 01-3 0 2.701 2.701 0 01-3 0 2.701 2.701 0 01-3 0 2.704 2.704 0 01-1.5-.454M21 10c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.705 2.705 0 01-3 0 2.701 2.701 0 01-3 0 2.701 2.701 0 01-3 0 2.704 2.704 0 01-1.5-.454M19 18v3a1 1 0 01-1 1H6a1 1 0 01-1-1v-3M4 11V5a2 2 0 012-2h12a2 2 0 012 2v6"/></svg>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-lg leading-tight">Kit Atleta</h4>
-                <p className="text-slate-500 text-sm">Camiseta e brindes preparados com carinho pela nossa igreja.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-lg leading-tight">Confraternização Final</h4>
-                <p className="text-slate-500 text-sm">Momento de comunhão e hidratação na chegada.</p>
-              </div>
-            </div>
+            
+            <a href="https://www.instagram.com/igrejaemsv/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 md:gap-4 group">
+               <div className="w-10 h-10 md:w-12 md:h-12 bg-black text-white rounded-2xl flex items-center justify-center group-hover:bg-[#F29100] transition-colors shadow-lg">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+               </div>
+               <div>
+                  <p className="font-bold text-sm md:text-base">@igrejaemsv</p>
+                  <p className="text-[10px] md:text-xs text-slate-400">Siga para novidades</p>
+               </div>
+            </a>
           </div>
         </div>
 
-        {/* Form Column */}
         <div className="lg:col-span-7">
           <RegistrationForm
             onSubmit={handleRegistration}
@@ -346,45 +262,18 @@ const IsvRun: React.FC = () => {
         </div>
       </main>
 
-      <footer className="bg-slate-950 text-white py-20 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-center text-center md:text-left">
-          <div className="space-y-4">
-            <div className="flex flex-col">
-              <div className="font-black text-3xl tracking-tighter">
-                ISV<span className="text-blue-500">RUN</span>
-              </div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
-                Igreja em São Vicente
-              </div>
+      <footer className="bg-black text-white py-12 md:py-20 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="font-black text-2xl md:text-3xl tracking-tighter">
+              AD<span className="text-[#F29100]">2026</span>
             </div>
-            <p className="text-slate-500 text-sm max-w-xs mx-auto md:mx-0">
-              Promovendo união e vida plena através do esporte e da comunhão.
-            </p>
-            <a
-              href="https://www.instagram.com/igrejaemsv/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors font-bold text-sm"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              @igrejaemsv
-            </a>
+            <p className="text-slate-500 text-[11px] md:text-sm mt-1 md:mt-2 uppercase tracking-widest font-bold">Igreja em São Vicente</p>
           </div>
-
-          <div className="flex justify-center gap-12">
-            <div className="text-center">
-              <p className="text-3xl font-black text-white">ISV</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Realização</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-black text-white">5K</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Trajeto</p>
-            </div>
-          </div>
-
-          <div className="text-slate-500 text-sm md:text-right">
-            <p>&copy; 2026 IGREJA EM SÃO VICENTE.</p>
-            <p>Siga-nos: @igrejaemsv</p>
+          
+          <div className="text-center md:text-right text-slate-500 text-[10px] md:text-sm">
+            <p>&copy; 2026 IGREJA EM SÃO VICENTE. Todos os direitos reservados.</p>
+            <p className="mt-1">Feito com fé e propósito • AD 2026</p>
           </div>
         </div>
       </footer>
@@ -393,9 +282,8 @@ const IsvRun: React.FC = () => {
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
       />
-
     </div>
   );
 };
 
-export default IsvRun;
+export default ADVPage;

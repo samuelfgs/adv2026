@@ -9,10 +9,9 @@ interface RegistrationResponse {
     email: string;
     cpf: string;
     mercado_pago_id: string;
-    metadata: {
-      modalidade: 'walk' | 'run';
-      dataNascimento: string;
-    };
+    kids?: number;
+    qtt?: number;
+    metadata: any;
   };
   error?: string;
 }
@@ -33,8 +32,8 @@ export default async function handler(
 
   try {
     const { data, error } = await supabase
-      .from('inscritos')
-      .select('id, nome, email, cpf, mercado_pago_id, metadata')
+      .from('inscritos_ad')
+      .select('id, name, email, cpf, mercado_pago_id, metadata, kids, qtt')
       .eq('mercado_pago_id', mercadoPagoId)
       .single();
 
@@ -50,11 +49,13 @@ export default async function handler(
       success: true,
       data: {
         id: data.id,
-        nome: data.nome,
+        nome: data.name,
         email: data.email,
         cpf: data.cpf,
         mercado_pago_id: data.mercado_pago_id,
         metadata: data.metadata,
+        kids: data.kids,
+        qtt: data.qtt,
       },
     });
   } catch (error) {
