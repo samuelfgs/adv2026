@@ -6,13 +6,19 @@ import { ADVEmailTemplate } from './isvRunEmailTemplate';
 import { formatPrice } from '../../../lib/price-formatter';
 import type { IscritoRecord } from '../mercadopago/webhook/types';
 
+const emailHost = process.env.EMAIL_HOST || "smtpout.secureserver.net";
+const emailPort = parseInt(process.env.EMAIL_PORT || "465");
+const emailSecure = process.env.EMAIL_SECURE ? process.env.EMAIL_SECURE === 'true' : true;
+const emailUser = process.env.EMAIL_USER || "contato@igrejasv.com";
+const emailPass = process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT || '587'),
-  secure: process.env.EMAIL_SECURE === 'true',
+  host: emailHost,
+  port: emailPort,
+  secure: emailSecure,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: emailUser,
+    pass: emailPass,
   },
 });
 
@@ -30,8 +36,9 @@ export async function sendIsvRunEmail(record: IscritoRecord) {
     />
   )}`;
 
+  const emailFrom = process.env.EMAIL_FROM || "contato@igrejasv.com";
   const mailOptions = {
-    from: `AD 2026 <${process.env.EMAIL_FROM}>`,
+    from: `AD 2026 <${emailFrom}>`,
     to: email,
     subject: 'Confirmação de Compra - AD 2026',
     html: emailHtml,
