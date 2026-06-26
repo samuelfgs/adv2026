@@ -11,10 +11,49 @@ const ADVPage: React.FC = () => {
   const [userName, setUserName] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
+  const [activeSpeaker, setActiveSpeaker] = useState<number | null>(null);
+
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+
+      // Only track active speaker on mobile/tablet (screen width < 768px)
+      if (window.innerWidth >= 768) {
+        setActiveSpeaker(null);
+        return;
+      }
+
+      const cards = document.querySelectorAll('.speaker-card');
+      if (cards.length === 0) return;
+
+      const viewportCenter = window.innerHeight / 2;
+      let closestIndex = null;
+      let minDistance = Infinity;
+
+      cards.forEach((el, index) => {
+        const rect = el.getBoundingClientRect();
+        const elementCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(elementCenter - viewportCenter);
+
+        // Check if the card is visible/intersecting in the viewport
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
+          }
+        }
+      });
+
+      setActiveSpeaker(closestIndex);
+    };
+
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const handleRegistration = (data: FormData) => {
@@ -137,15 +176,22 @@ const ADVPage: React.FC = () => {
               { name: 'DANIEL SOUZA', role: 'LOUVOR / PALAVRA', img: '/daniel.jpeg' },
               { name: 'JAN GOTTFRIDSON', role: 'PALAVRA', img: '/jan.jpeg' },
               { name: 'ASAPH BORBA', role: 'LOUVOR / PALAVRA', img: '/asaph.jpeg' }
-            ].map((speaker, i) => (
-              <div key={i} className="group relative text-center">
-                <div className="aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-100 mb-4 md:mb-6 border border-slate-100 grayscale hover:grayscale-0 transition-all duration-700">
-                  <img src={speaker.img} alt={speaker.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            ].map((speaker, i) => {
+              const isActive = activeSpeaker === i;
+              return (
+                <div key={i} className="speaker-card group relative text-center">
+                  <div className={`aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-100 mb-4 md:mb-6 border border-slate-100 transition-all duration-700 hover:grayscale-0 ${isActive ? 'grayscale-0' : 'grayscale'}`}>
+                    <img 
+                      src={speaker.img} 
+                      alt={speaker.name} 
+                      className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isActive ? 'scale-110' : 'scale-100'}`} 
+                    />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-black tracking-tight">{speaker.name}</h3>
+                  <p className="text-[10px] md:text-sm font-bold text-[#F29100] tracking-widest mt-1 uppercase">{speaker.role}</p>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black tracking-tight">{speaker.name}</h3>
-                <p className="text-[10px] md:text-sm font-bold text-[#F29100] tracking-widest mt-1 uppercase">{speaker.role}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
