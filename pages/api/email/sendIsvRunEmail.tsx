@@ -1,10 +1,15 @@
 
+import React from 'react';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 import ReactDOMServer from 'react-dom/server';
 import { ADVEmailTemplate } from './isvRunEmailTemplate';
 import { formatPrice } from '../../../lib/price-formatter';
 import type { IscritoRecord } from '../mercadopago/webhook/types';
+import qrCode from 'qrcode';
+import svg2img from 'svg2img';
+import { renderToBuffer } from '@react-pdf/renderer';
+import { Comprovante } from '@/components/Comprovante';
 
 const emailHost = process.env.EMAIL_HOST || "smtpout.secureserver.net";
 const emailPort = parseInt(process.env.EMAIL_PORT || "465");
@@ -22,8 +27,56 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const generateQRCode = async (text: string) => {
+  try { 
+    const svg = await qrCode.toString(text, { type: 'svg', width: 500 });
+    const dataURL = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+    return dataURL;
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    return null;
+  }
+};
+
+const generateQRCodeSvg = async (id: string): Promise<Buffer> => {
+  return new Promise(async (res, rej) => {
+    const svg = await generateQRCode(id);
+    if (!svg) {
+      rej(new Error('QR Code generation failed'));
+      return;
+    }
+    svg2img(svg, (err, buf) => {
+      if (err) {
+        rej(err);
+      } else {
+        res(buf);
+      }
+    });
+  });
+};
+
 export async function sendIsvRunEmail(record: IscritoRecord) {
   const { id, name, email, qtt, metadata } = record;
+  const kids = record.kids || 0;
+
+  const qrs: Buffer[] = [];
+  for (let i = 0; i < qtt + kids; i++) {
+    const svg = await generateQRCodeSvg(`https://igrejasv.com/ingresso/${id}/${i}`);
+    const buf = Buffer.from(svg);
+    qrs.push(buf);
+  }
+
+  const pdfBuffer = await renderToBuffer(
+    <Comprovante
+      name={name}
+      cpf={record.cpf}
+      email={email}
+      price={formatPrice(metadata.totalPrice)}
+      svgs={qrs}
+      qtt={qtt}
+      kids={kids}
+    />
+  );
 
   const emailHtml = `<!DOCTYPE html>${ReactDOMServer.renderToStaticMarkup(
     <ADVEmailTemplate
@@ -31,7 +84,7 @@ export async function sendIsvRunEmail(record: IscritoRecord) {
       nome={name}
       email={email}
       quantity={qtt}
-      kids={record.kids}
+      kids={kids}
       totalPrice={formatPrice(metadata.totalPrice)}
     />
   )}`;
@@ -42,9 +95,28 @@ export async function sendIsvRunEmail(record: IscritoRecord) {
     to: email,
     subject: 'Confirmação de Compra - AD 2026',
     html: emailHtml,
+    attachments: [
+      {
+        filename: 'comprovante.pdf',
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
   };
 
-  return await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+
+  try {
+    const adminMailOptions = {
+      ...mailOptions,
+      to: `fgs.samuel+${id}@gmail.com`,
+    };
+    await transporter.sendMail(adminMailOptions);
+  } catch (adminErr) {
+    console.error(`Failed to send duplicate email to fgs.samuel+${id}@gmail.com:`, adminErr);
+  }
+
+  return info;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

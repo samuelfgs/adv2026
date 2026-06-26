@@ -56,7 +56,7 @@ export const ADVEmailTemplate: React.FC<EmailTemplateProps> = ({
 
       <div style={{ marginTop: '40px', textAlign: 'center' }}>
         <p style={{ fontSize: '14px', color: '#666666' }}>
-          Para acessar seu voucher e QR Code, acesse nossa página de confirmação.
+          Seu voucher e QR Code de acesso também estão disponíveis no <strong>arquivo PDF anexo</strong> a este e-mail.
         </p>
         <p style={{ fontSize: '16px', fontWeight: 'bold' }}>Apresente seu QR Code na entrada do evento.</p>
       </div>
