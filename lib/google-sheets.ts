@@ -2,7 +2,7 @@ import { google } from 'googleapis';
 import { JWT } from 'google-auth-library';
 import type { IscritoRecord } from '@/pages/api/mercadopago/webhook/types';
 
-const INVALID_IDS = ['10'];
+const INVALID_IDS = ['10', '7', '8'];
 let authClient: JWT | null = null;
 
 function getAuthClient(): JWT {
@@ -29,37 +29,51 @@ function getSheetsClient() {
 }
 
 function formatRegistrationForSheet(inscrito: IscritoRecord): any[][] {
-  const { id, metadata, qtt, kids } = inscrito;
+  const { id, name, email, telefone, metadata, qtt, kids } = inscrito;
   if (INVALID_IDS.includes(`${id}`)) return [];
-  if (!metadata || !metadata.payer) return [];
 
-  const { payer, totalPrice } = metadata;
-  const displayQuantity = kids > 0 ? `${qtt} (+ ${kids} crianças)` : qtt;
+  let metaObj = metadata;
+  if (typeof metaObj === 'string') {
+    try {
+      metaObj = JSON.parse(metaObj);
+    } catch {
+      metaObj = undefined;
+    }
+  }
+
+  const payerName = metaObj?.payer?.nome || name || '';
+  const payerEmail = metaObj?.payer?.email || email || '';
+  const payerPhone = metaObj?.payer?.telefone || telefone || '';
+  const totalPrice = metaObj?.totalPrice ?? (qtt * 25);
 
   return [[
     id,
-    payer.nome,
-    payer.cpf,
-    payer.email,
-    payer.telefone,
-    displayQuantity,
+    payerName,
+    payerEmail,
+    payerPhone,
+    qtt,
+    kids,
     totalPrice || 0,
   ]];
 }
 
 export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promise<void> {
-  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON || !process.env.SPREADSHEET_ID) return;
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON || !process.env.SPREADSHEET_ID) {
+    console.warn('[GOOGLE_SHEETS] Skipping append: GOOGLE_SERVICE_ACCOUNT_JSON or SPREADSHEET_ID env var missing');
+    return;
+  }
   try {
     const rows = formatRegistrationForSheet(inscrito);
     if (rows.length === 0) return;
     const sheets = getSheetsClient();
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID!,
-      range: 'A:G',
+      range: 'Participantes!A:G',
       valueInputOption: 'USER_ENTERED',
-      insertDataOption: 'INSERT_ROWS',
+      insertDataOption: 'OVERWRITE',
       requestBody: { values: rows },
     });
+    console.log(`[GOOGLE_SHEETS] Successfully appended ID ${inscrito.id} to sheet`);
   } catch (error) {
     console.error('Error appending to Google Sheet:', error);
   }
@@ -69,11 +83,21 @@ export async function clearSheetData(): Promise<void> {
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON || !process.env.SPREADSHEET_ID) throw new Error('Google Sheets not configured');
   const sheets = getSheetsClient();
   const spreadsheetId = process.env.SPREADSHEET_ID;
-  const response = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'A:G' });
-  const rows = response.data.values || [];
-  if (rows.length > 1) {
-    await sheets.spreadsheets.values.clear({ spreadsheetId, range: `A2:G${rows.length}` });
-  }
+  
+  // Clear everything in range A:G of Participantes sheet
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId,
+    range: 'Participantes!A:G',
+  });
+
+  // Write headers to row 1
+  const headers = [['ID', 'Nome', 'Email', 'Telefone', 'Adultos', 'Criancas', 'Valor Pago']];
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: 'Participantes!A1:G1',
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values: headers },
+  });
 }
 
 export async function bulkPopulateSheet(inscritos: IscritoRecord[]): Promise<number> {
@@ -86,9 +110,9 @@ export async function bulkPopulateSheet(inscritos: IscritoRecord[]): Promise<num
   const sheets = getSheetsClient();
   await sheets.spreadsheets.values.append({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: 'A:G',
+    range: 'Participantes!A:G',
     valueInputOption: 'USER_ENTERED',
-    insertDataOption: 'INSERT_ROWS',
+    insertDataOption: 'OVERWRITE',
     requestBody: { values: allRows },
   });
   return allRows.length;

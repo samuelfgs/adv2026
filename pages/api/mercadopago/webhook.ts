@@ -5,6 +5,7 @@ import { inscritosAd } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifyWebhookSignature } from '@/lib/webhook-verification';
 import { sendIsvRunEmail } from '../email/sendIsvRunEmail';
+import { appendRegistrationToSheet } from '@/lib/google-sheets';
 import type { WebhookPayload, IscritoRecord, WebhookResponse } from './webhook/types';
 
 export default async function handler(
@@ -198,6 +199,14 @@ export default async function handler(
         inscritoId: inscritoRecord.id,
         message: 'Email sent but failed to update database'
       });
+    }
+
+    // Automatically append new registration to Google Sheet
+    try {
+      await appendRegistrationToSheet(inscritoRecord);
+      console.log(`[WEBHOOK] ✓ Appended registration to Google Sheet for:`, inscritoRecord.id);
+    } catch (sheetError) {
+      console.error('[WEBHOOK] Error appending to Google Sheet:', sheetError);
     }
 
     const totalDuration = Date.now() - startTime;

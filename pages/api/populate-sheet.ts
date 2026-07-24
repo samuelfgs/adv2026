@@ -119,7 +119,7 @@ export default async function handler(
 
     // Count how many have valid metadata before processing
     const validCount = inscritos.filter((i: any) =>
-      i.metadata && i.metadata.people && Array.isArray(i.metadata.people)
+      i.metadata && i.metadata.payer
     ).length;
     const skippedCount = inscritos.length - validCount;
 
