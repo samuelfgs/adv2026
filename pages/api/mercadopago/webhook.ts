@@ -57,24 +57,38 @@ export default async function handler(
     //   });
     // }
 
-    const { id, topic } = req.query;
+    const paymentId = (
+      (req.query.id as string) ||
+      (req.query['data.id'] as string) ||
+      req.body?.data?.id?.toString() ||
+      req.body?.id?.toString()
+    );
+
+    const eventType = (
+      (req.query.topic as string) ||
+      (req.query.type as string) ||
+      req.body?.type ||
+      req.body?.action
+    );
 
     console.log('[WEBHOOK] Received:', {
+      paymentId,
+      eventType,
       query: req.query,
       body: req.body,
       timestamp: new Date().toISOString()
     });
 
-    // Only process payment notifications
-    if (topic !== 'payment') {
-      console.log('Ignoring non-payment webhook:', topic);
+    // Only process payment notifications ('payment', 'payment.created', 'payment.updated', or missing topic if paymentId exists)
+    const isPaymentTopic = !eventType || eventType === 'payment' || eventType.startsWith('payment');
+
+    if (!paymentId || !isPaymentTopic) {
+      console.log('Ignoring non-payment webhook or missing payment ID:', { eventType, paymentId });
       return res.status(200).json({
         success: true,
-        message: 'Webhook received but not a payment notification'
+        message: 'Webhook received but not a payment notification or missing payment ID'
       });
     }
-
-    const paymentId = id as string;
 
     // Fetch payment details from Mercado Pago
     let paymentDetails;
@@ -152,6 +166,14 @@ export default async function handler(
     // Check if email already sent (idempotency)
     if (inscritoRecord.email_sent) {
       console.log('Email already sent for registration:', inscritoRecord.id);
+
+      // Attempt to ensure Google Sheet is updated even if email was previously sent
+      try {
+        await appendRegistrationToSheet(inscritoRecord);
+      } catch (sheetError) {
+        console.error('[WEBHOOK] Error appending to Google Sheet on idempotency:', sheetError);
+      }
+
       return res.status(200).json({
         success: true,
         paymentId,
