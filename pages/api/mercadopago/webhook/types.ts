@@ -17,20 +17,7 @@ export interface IscritoRecord {
   kids: number;
   mercado_pago_id: string;
   email_sent: boolean;
-  metadata: {
-    payer: {
-      nome: string;
-      cpf: string;
-      email: string;
-      telefone: string;
-    };
-    qtt: number;
-    kids?: number;
-    basePrice: number;
-    totalPrice: number;
-    event: string;
-    init_point: string;
-  };
+  metadata?: any;
 }
 
 export interface WebhookResponse {

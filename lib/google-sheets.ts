@@ -32,7 +32,7 @@ function formatRegistrationForSheet(inscrito: IscritoRecord): any[][] {
   const { id, name, email, telefone, metadata, qtt, kids } = inscrito;
   if (INVALID_IDS.includes(`${id}`)) return [];
 
-  let metaObj = metadata;
+  let metaObj: any = metadata;
   if (typeof metaObj === 'string') {
     try {
       metaObj = JSON.parse(metaObj);
