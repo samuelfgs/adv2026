@@ -78,18 +78,33 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
     const existingRows = existingSheetData.data.values || [];
     const targetIdStr = String(inscrito.id);
 
-    // Find row index if already present
-    const existingIndex = existingRows.findIndex((row, idx) => idx > 0 && String(row[0]) === targetIdStr);
+    // Find all row indices matching targetIdStr
+    const matchingIndices: number[] = [];
+    existingRows.forEach((row, idx) => {
+      if (idx > 0 && String(row[0]) === targetIdStr) {
+        matchingIndices.push(idx);
+      }
+    });
 
-    if (existingIndex !== -1) {
-      const rowNumber = existingIndex + 1;
-      console.log(`[GOOGLE_SHEETS] ID ${inscrito.id} already exists at row ${rowNumber} in sheet. Updating row.`);
+    if (matchingIndices.length > 0) {
+      const firstRowNumber = matchingIndices[0] + 1;
+      console.log(`[GOOGLE_SHEETS] ID ${inscrito.id} already exists at row ${firstRowNumber} in sheet. Updating row.`);
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: `Participantes!A${rowNumber}:G${rowNumber}`,
+        range: `Participantes!A${firstRowNumber}:G${firstRowNumber}`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values: rows },
       });
+
+      // Clear any extra duplicate rows if found
+      for (let i = 1; i < matchingIndices.length; i++) {
+        const dupRowNumber = matchingIndices[i] + 1;
+        console.log(`[GOOGLE_SHEETS] Clearing duplicate row ${dupRowNumber} for ID ${inscrito.id}`);
+        await sheets.spreadsheets.values.clear({
+          spreadsheetId,
+          range: `Participantes!A${dupRowNumber}:G${dupRowNumber}`,
+        });
+      }
       return;
     }
 

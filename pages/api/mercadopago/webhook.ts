@@ -163,22 +163,27 @@ export default async function handler(
       metadata: inscrito.metadata as any,
     };
 
-    // Check if email already sent (idempotency)
-    if (inscritoRecord.email_sent) {
-      console.log('Email already sent for registration:', inscritoRecord.id);
+    // ATOMIC CLAIM: Try to update emailSent = true WHERE emailSent = false.
+    // If 0 rows are updated, another concurrent webhook request already claimed/processed it.
+    let claimed = false;
+    try {
+      const updatedRows = await db
+        .update(inscritosAd)
+        .set({ emailSent: true })
+        .where(and(eq(inscritosAd.id, inscrito.id), eq(inscritosAd.emailSent, false)))
+        .returning();
+      claimed = updatedRows.length > 0;
+    } catch (err: any) {
+      console.error('[WEBHOOK] Error in atomic emailSent update:', err);
+    }
 
-      // Attempt to ensure Google Sheet is updated even if email was previously sent
-      try {
-        await appendRegistrationToSheet(inscritoRecord);
-      } catch (sheetError) {
-        console.error('[WEBHOOK] Error appending to Google Sheet on idempotency:', sheetError);
-      }
-
+    if (!claimed) {
+      console.log(`[WEBHOOK] Registration ID ${inscrito.id} already claimed/processed by another request.`);
       return res.status(200).json({
         success: true,
         paymentId,
-        inscritoId: inscritoRecord.id,
-        message: 'Email already sent for this registration',
+        inscritoId: inscrito.id,
+        message: 'Registration already processed by concurrent request',
         alreadySent: true
       });
     }
@@ -191,36 +196,6 @@ export default async function handler(
       console.log(`[WEBHOOK] Email sent in ${emailDuration}ms to:`, inscritoRecord.email);
     } catch (emailError: any) {
       console.error('[WEBHOOK] Error sending email:', emailError);
-      return res.status(500).json({
-        success: false,
-        paymentId,
-        inscritoId: inscritoRecord.id,
-        message: 'Failed to send confirmation email'
-      });
-    }
-
-    // Update database to mark email as sent
-    let updateError = null;
-    try {
-      await db
-        .update(inscritosAd)
-        .set({ emailSent: true })
-        .where(eq(inscritosAd.id, inscritoRecord.id));
-    } catch (err: any) {
-      console.error('[WEBHOOK] Error updating database:', err);
-      updateError = err;
-    }
-
-    if (updateError) {
-      console.error('[WEBHOOK] Error updating email_sent flag:', updateError);
-      // Email was sent, but flag update failed - log but don't fail the request
-      // This prevents resending if webhook is retried
-      return res.status(500).json({
-        success: false,
-        paymentId,
-        inscritoId: inscritoRecord.id,
-        message: 'Email sent but failed to update database'
-      });
     }
 
     // Automatically append new registration to Google Sheet
