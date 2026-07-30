@@ -65,9 +65,37 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
   try {
     const rows = formatRegistrationForSheet(inscrito);
     if (rows.length === 0) return;
+
     const sheets = getSheetsClient();
+    const spreadsheetId = process.env.SPREADSHEET_ID!;
+
+    // Fetch existing IDs from column A to prevent duplicate rows
+    const existingSheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Participantes!A:A',
+    });
+
+    const existingRows = existingSheetData.data.values || [];
+    const targetIdStr = String(inscrito.id);
+
+    // Find row index if already present
+    const existingIndex = existingRows.findIndex((row, idx) => idx > 0 && String(row[0]) === targetIdStr);
+
+    if (existingIndex !== -1) {
+      const rowNumber = existingIndex + 1;
+      console.log(`[GOOGLE_SHEETS] ID ${inscrito.id} already exists at row ${rowNumber} in sheet. Updating row.`);
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `Participantes!A${rowNumber}:G${rowNumber}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: rows },
+      });
+      return;
+    }
+
+    // Append new row if ID not present in sheet
     await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.SPREADSHEET_ID!,
+      spreadsheetId,
       range: 'Participantes!A:G',
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'OVERWRITE',
