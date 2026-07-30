@@ -52,11 +52,12 @@ export default function CheckinControlPage() {
   // Selected participant for details/QR modal
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [modalMode, setModalMode] = useState<'details' | 'qr' | null>(null);
+  const [selectedQrEntry, setSelectedQrEntry] = useState<number>(0);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   
   // Action loading states
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-  const [adminName, setAdminName] = useState<string>('Admin Control');
+  const [adminName, setAdminName] = useState<string>('recepcao');
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -90,7 +91,7 @@ export default function CheckinControlPage() {
   };
 
   useEffect(() => {
-    const savedName = localStorage.getItem('isv-admin') || localStorage.getItem('checkin-responsavel');
+    const savedName = localStorage.getItem('checkin_user') || localStorage.getItem('isv-admin') || 'recepcao';
     if (savedName) setAdminName(savedName);
     fetchData(false);
 
@@ -176,8 +177,9 @@ export default function CheckinControlPage() {
     }
   };
 
-  const handleOpenQRModal = (participant: Participant) => {
+  const handleOpenQRModal = (participant: Participant, entryNum: number = 0) => {
     setSelectedParticipant(participant);
+    setSelectedQrEntry(entryNum);
     setModalMode('qr');
   };
 
@@ -275,18 +277,6 @@ export default function CheckinControlPage() {
 
             {/* Quick Actions */}
             <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-              <input
-                type="text"
-                value={adminName}
-                onChange={(e) => {
-                  setAdminName(e.target.value);
-                  localStorage.setItem('isv-admin', e.target.value);
-                  localStorage.setItem('checkin-responsavel', e.target.value);
-                }}
-                placeholder="Seu Nome (Responsável)"
-                className="bg-slate-900 border border-slate-700 text-xs text-slate-200 px-3 py-2.5 rounded-xl focus:outline-none focus:border-amber-500 w-44"
-                title="Nome salvo como validador nos registros de check-in"
-              />
               <Link
                 href="/checkin"
                 className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all active:scale-95 whitespace-nowrap"
@@ -357,7 +347,9 @@ export default function CheckinControlPage() {
                 <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Aguardando Check-in</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-extrabold text-amber-300">{stats.totalPendingPeople}</span>
-                  <span className="text-xs text-slate-400 font-medium">ausentes</span>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {stats.totalPendingPeople === 1 ? 'ausente' : 'ausentes'}
+                  </span>
                 </div>
                 <div className="mt-2 text-xs text-amber-400/80 font-semibold border-t border-slate-700/60 pt-2">
                   {100 - stats.completionPercentage}% restante
@@ -372,7 +364,8 @@ export default function CheckinControlPage() {
                   <span className="text-xs text-slate-400 font-medium">concluído</span>
                 </div>
                 <p className="mt-2 text-xs text-slate-400 border-t border-slate-700/60 pt-2">
-                  {stats.totalCheckedInPeople} de {stats.totalPeople} entradas validadas
+                  {stats.totalCheckedInPeople} de {stats.totalPeople}{' '}
+                  {stats.totalPeople === 1 ? 'entrada validada' : 'entradas validadas'}
                 </p>
               </div>
             </div>
@@ -552,7 +545,9 @@ export default function CheckinControlPage() {
                                   ⚠️ PARCIAL ({p.checkinCount}/{p.totalTickets})
                                 </span>
                                 <span className="text-[10px] text-amber-400 mt-1">
-                                  Faltam {p.totalTickets - p.checkinCount} entradas
+                                  {p.totalTickets - p.checkinCount === 1
+                                    ? 'Falta 1 entrada'
+                                    : `Faltam ${p.totalTickets - p.checkinCount} entradas`}
                                 </span>
                               </div>
                             ) : (
@@ -562,54 +557,31 @@ export default function CheckinControlPage() {
                             )}
                           </td>
 
-                          {/* Actions: Individual Manual Checkin */}
+                          {/* Actions: Single Marcar Check-in Button opening Ticket Modal */}
                           <td className="px-5 py-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                              {Array.from({ length: p.totalTickets }).map((_, idx) => {
-                                const checkinRecord = p.checkins.find((c) => Number(c.inscricaoNumber) === idx);
-                                const isChecked = !!checkinRecord;
-                                const isKids = idx >= p.qtt;
-                                const label = p.totalTickets === 1
-                                  ? 'Check-in'
-                                  : `#${idx + 1}${isKids ? ' (Kids)' : ''}`;
-
-                                return (
-                                  <button
-                                    key={idx}
-                                    onClick={() => handleToggleCheckin(p, idx, isChecked ? 'checkout' : 'checkin')}
-                                    disabled={actionLoadingId === `${p.id}-${idx}`}
-                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 border flex items-center gap-1.5 ${
-                                      isChecked
-                                        ? 'bg-emerald-950/80 hover:bg-rose-900/80 text-emerald-300 border-emerald-500/50 hover:border-rose-500/50 hover:text-rose-200'
-                                        : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-md'
-                                    }`}
-                                    title={
-                                      isChecked
-                                        ? `Check-in realizado por ${checkinRecord?.responsavel || 'Portaria'}. Clique para desfazer.`
-                                        : `Marcar check-in individual para Ingresso ${label}`
-                                    }
-                                  >
-                                    {actionLoadingId === `${p.id}-${idx}` ? (
-                                      '⏳...'
-                                    ) : isChecked ? (
-                                      <>
-                                        <span>✅</span>
-                                        <span>{label}</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span>⚡</span>
-                                        <span>{label}</span>
-                                      </>
-                                    )}
-                                  </button>
-                                );
-                              })}
+                            <div className="flex items-center justify-end gap-2">
+                              {!isFullyCheckedIn ? (
+                                <button
+                                  onClick={() => handleOpenDetailsModal(p)}
+                                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5"
+                                  title="Abrir seleção de ingressos para check-in"
+                                >
+                                  <span>⚡</span> Marcar Check-in
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleOpenDetailsModal(p)}
+                                  className="bg-slate-800 hover:bg-slate-700 text-emerald-300 font-medium text-xs px-3 py-2 rounded-xl border border-emerald-500/40 transition-all active:scale-95 flex items-center gap-1.5"
+                                  title="Ver ou desfazer check-in dos ingressos"
+                                >
+                                  <span>✅</span> Ver / Desfazer
+                                </button>
+                              )}
 
                               {/* View QR Code Button */}
                               <button
                                 onClick={() => handleOpenQRModal(p)}
-                                className="bg-slate-900 hover:bg-black text-amber-400 text-xs px-2.5 py-1.5 rounded-xl border border-slate-700 transition-all ml-1"
+                                className="bg-slate-900 hover:bg-black text-amber-400 text-xs px-2.5 py-2 rounded-xl border border-slate-700 transition-all"
                                 title="Ver QR Code"
                               >
                                 📱 QR
@@ -649,9 +621,20 @@ export default function CheckinControlPage() {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Ingressos desta Inscrição ({selectedParticipant.totalTickets} total)
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Ingressos desta Inscrição ({selectedParticipant.totalTickets} total)
+                  </h4>
+                  {!selectedParticipant.isFullyCheckedIn && (
+                    <button
+                      onClick={() => handleCheckinAll(selectedParticipant)}
+                      disabled={actionLoadingId === `${selectedParticipant.id}-all`}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1 rounded-xl shadow transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      {actionLoadingId === `${selectedParticipant.id}-all` ? '⏳...' : '⚡ Marcar Todos'}
+                    </button>
+                  )}
+                </div>
 
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                   {Array.from({ length: selectedParticipant.totalTickets }).map((_, idx) => {
@@ -728,15 +711,15 @@ export default function CheckinControlPage() {
         {/* Modal: View QR Code */}
         {modalMode === 'qr' && selectedParticipant && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-slate-800 border border-slate-700 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-6">
+            <div className="bg-slate-800 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center space-y-5">
               <div className="flex justify-between items-center border-b border-slate-700 pb-3">
-                <h3 className="font-bold text-white text-lg">QR Code de Check-in</h3>
+                <h3 className="font-bold text-white text-lg">QR Codes dos Ingressos</h3>
                 <button
                   onClick={() => {
                     setModalMode(null);
                     setSelectedParticipant(null);
                   }}
-                  className="text-slate-400 hover:text-white text-lg font-bold"
+                  className="text-slate-400 hover:text-white text-lg font-bold p-1"
                 >
                   ✕
                 </button>
@@ -744,27 +727,72 @@ export default function CheckinControlPage() {
 
               <div>
                 <p className="font-bold text-slate-100 text-base">{selectedParticipant.name}</p>
-                <p className="text-xs text-slate-400">ID #{selectedParticipant.id}</p>
+                <p className="text-xs text-slate-400">
+                  ID #{selectedParticipant.id} • {selectedParticipant.totalTickets} {selectedParticipant.totalTickets === 1 ? 'ingresso' : 'ingressos'}
+                </p>
+              </div>
+
+              {/* Tabs for multi-ticket selection */}
+              {selectedParticipant.totalTickets > 1 && (
+                <div className="flex items-center justify-center gap-1.5 overflow-x-auto bg-slate-900 p-1.5 rounded-xl border border-slate-700 text-xs">
+                  {Array.from({ length: selectedParticipant.totalTickets }).map((_, idx) => {
+                    const isKids = idx >= selectedParticipant.qtt;
+                    const isSelected = selectedQrEntry === idx;
+                    const checkinRecord = selectedParticipant.checkins.find(c => Number(c.inscricaoNumber) === idx);
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedQrEntry(idx)}
+                        className={`px-3 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-amber-500 text-slate-950 shadow'
+                            : 'text-slate-400 hover:text-white bg-slate-800'
+                        }`}
+                      >
+                        <span>#{idx + 1}</span>
+                        {isKids && <span className="text-[10px] opacity-80">(Kids)</span>}
+                        {checkinRecord && <span>✅</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Specific Ticket Info */}
+              <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700 text-xs flex justify-between items-center">
+                <span className="font-semibold text-slate-200">
+                  Ingresso #{selectedQrEntry + 1}: {selectedQrEntry >= selectedParticipant.qtt ? 'Criança (3-10 anos)' : 'Adulto'}
+                </span>
+                {selectedParticipant.checkins.some(c => Number(c.inscricaoNumber) === selectedQrEntry) ? (
+                  <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-500/30">
+                    ✅ Checked-in
+                  </span>
+                ) : (
+                  <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-500/30">
+                    ⏳ Pendente
+                  </span>
+                )}
               </div>
 
               <div className="p-4 bg-white rounded-2xl inline-block shadow-inner">
                 <QRCode
-                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/checkin/${selectedParticipant.id}`}
+                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/ingresso/${selectedParticipant.id}/${selectedQrEntry}`}
                   size={200}
                 />
               </div>
 
               <p className="text-xs text-slate-400">
-                Link: <span className="text-amber-400 break-all font-mono">{`/checkin/${selectedParticipant.id}`}</span>
+                Link: <span className="text-amber-400 break-all font-mono">{`/ingresso/${selectedParticipant.id}/${selectedQrEntry}`}</span>
               </p>
 
               <div className="flex gap-2 justify-center">
                 <Link
-                  href={`/checkin/${selectedParticipant.id}`}
+                  href={`/ingresso/${selectedParticipant.id}/${selectedQrEntry}`}
                   target="_blank"
-                  className="bg-amber-500 hover:bg-orange-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition-all"
+                  className="bg-amber-500 hover:bg-orange-500 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-xl shadow transition-all"
                 >
-                  Abrir Página de Check-in ↗
+                  Abrir Voucher do Ingresso ↗
                 </Link>
                 <button
                   onClick={() => {

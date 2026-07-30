@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { payment } from '@/lib/mercadopago';
 import { db } from '@/lib/db';
 import { inscritosAd } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { verifyWebhookSignature } from '@/lib/webhook-verification';
 import { sendIsvRunEmail } from '../email/sendIsvRunEmail';
 import { appendRegistrationToSheet } from '@/lib/google-sheets';

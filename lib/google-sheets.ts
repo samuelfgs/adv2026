@@ -57,11 +57,24 @@ function formatRegistrationForSheet(inscrito: IscritoRecord): any[][] {
   ]];
 }
 
+const activeAppends = new Set<string>();
+
 export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promise<void> {
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON || !process.env.SPREADSHEET_ID) {
     console.warn('[GOOGLE_SHEETS] Skipping append: GOOGLE_SERVICE_ACCOUNT_JSON or SPREADSHEET_ID env var missing');
     return;
   }
+
+  const targetIdStr = String(inscrito.id);
+
+  // In-memory lock to prevent concurrent execution for the same ID in the same process
+  if (activeAppends.has(targetIdStr)) {
+    console.log(`[GOOGLE_SHEETS] Append already in progress for ID ${targetIdStr}, skipping duplicate execution.`);
+    return;
+  }
+
+  activeAppends.add(targetIdStr);
+
   try {
     const rows = formatRegistrationForSheet(inscrito);
     if (rows.length === 0) return;
@@ -76,7 +89,6 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
     });
 
     const existingRows = existingSheetData.data.values || [];
-    const targetIdStr = String(inscrito.id);
 
     // Find all row indices matching targetIdStr
     const matchingIndices: number[] = [];
@@ -117,8 +129,34 @@ export async function appendRegistrationToSheet(inscrito: IscritoRecord): Promis
       requestBody: { values: rows },
     });
     console.log(`[GOOGLE_SHEETS] Successfully appended ID ${inscrito.id} to sheet`);
+
+    // Post-append self-healing check: verify if concurrent request created a duplicate row
+    const postCheckData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Participantes!A:A',
+    });
+    const postRows = postCheckData.data.values || [];
+    const postMatches: number[] = [];
+    postRows.forEach((row, idx) => {
+      if (idx > 0 && String(row[0]) === targetIdStr) {
+        postMatches.push(idx);
+      }
+    });
+
+    if (postMatches.length > 1) {
+      console.log(`[GOOGLE_SHEETS] Post-append check found ${postMatches.length} rows for ID ${inscrito.id}. Clearing extra duplicate rows.`);
+      for (let i = 1; i < postMatches.length; i++) {
+        const dupRowNumber = postMatches[i] + 1;
+        await sheets.spreadsheets.values.clear({
+          spreadsheetId,
+          range: `Participantes!A${dupRowNumber}:G${dupRowNumber}`,
+        });
+      }
+    }
   } catch (error) {
     console.error('Error appending to Google Sheet:', error);
+  } finally {
+    activeAppends.delete(targetIdStr);
   }
 }
 
