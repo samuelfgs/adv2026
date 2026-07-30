@@ -72,29 +72,47 @@ export default function CheckinScannerPage() {
 
       setIsScanning(true);
 
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new window.Html5Qrcode('qr-reader-container');
-      }
-
-      await html5QrCodeRef.current.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText: string) => {
-          // Successfully scanned QR Code
-          if (html5QrCodeRef.current) {
-            html5QrCodeRef.current.stop().catch(console.error);
+      // Allow React to render dedicated container before attaching scanner
+      setTimeout(async () => {
+        try {
+          if (!html5QrCodeRef.current) {
+            html5QrCodeRef.current = new window.Html5Qrcode('qr-reader-container');
           }
-          
-          const { id: cleanId, entry: cleanEntry } = parseQrUrl(decodedText);
-          router.push(`/checkin/${cleanId}?entry=${cleanEntry}&responsavel=${encodeURIComponent(validatorName)}`);
-        },
-        (_errorMessage: string) => {
-          // frame scan loop
+
+          await html5QrCodeRef.current.start(
+            { facingMode: 'environment' },
+            {
+              fps: 10,
+              qrbox: { width: 250, height: 250 },
+            },
+            (decodedText: string) => {
+              // Successfully scanned QR Code
+              if (html5QrCodeRef.current) {
+                html5QrCodeRef.current.stop().catch(console.error);
+              }
+              
+              const { id: cleanId, entry: cleanEntry } = parseQrUrl(decodedText);
+              router.push(`/checkin/${cleanId}?entry=${cleanEntry}&responsavel=${encodeURIComponent(validatorName)}`);
+            },
+            (_errorMessage: string) => {
+              // frame scan loop
+            }
+          );
+        } catch (err: any) {
+          console.error('Camera start error:', err);
+          let userMsg = 'Permissão de câmera negada ou câmera indisponível no dispositivo.';
+          if (err?.name === 'NotAllowedError' || String(err).includes('Permission') || String(err).includes('dismissed')) {
+            userMsg = 'Permissão de câmera foi negada ou cancelada. Permita o acesso à câmera no navegador e tente novamente.';
+          }
+          setCameraError(userMsg);
+          setIsScanning(false);
+          if (html5QrCodeRef.current) {
+            try {
+              await html5QrCodeRef.current.clear();
+            } catch {}
+          }
         }
-      );
+      }, 50);
     } catch (err: any) {
       console.error('Camera error:', err);
       setCameraError('Permissão de câmera negada ou câmera indisponível no dispositivo.');
@@ -106,6 +124,7 @@ export default function CheckinScannerPage() {
     if (html5QrCodeRef.current) {
       try {
         await html5QrCodeRef.current.stop();
+        await html5QrCodeRef.current.clear();
       } catch (err) {
         console.error('Stop error:', err);
       }
@@ -170,29 +189,31 @@ export default function CheckinScannerPage() {
               <span>📷</span> Leitura por Câmera
             </h2>
 
-            <div
-              id="qr-reader-container"
-              className="w-full bg-slate-950 rounded-2xl border-2 border-dashed border-slate-800 min-h-[260px] overflow-hidden relative flex items-center justify-center"
-            >
-              {!isScanning && (
-                <div className="p-6 text-center space-y-3">
-                  <span className="text-5xl block">📱</span>
-                  <p className="text-xs text-slate-400">
-                    Posicione o QR Code da inscrição na câmera para registrar a entrada automaticamente.
-                  </p>
-                  <button
-                    onClick={startScanner}
-                    disabled={!scriptLoaded}
-                    className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 text-sm"
-                  >
-                    {scriptLoaded ? 'Ativar Câmera do Dispositivo' : 'Carregando Câmera...'}
-                  </button>
-                </div>
-              )}
+            {/* Dedicated scanner container - NO REACT CHILDREN to avoid DOM removal conflicts */}
+            <div className={`w-full bg-slate-950 rounded-2xl border-2 border-dashed border-slate-800 overflow-hidden relative ${isScanning ? 'block min-h-[280px]' : 'hidden'}`}>
+              <div id="qr-reader-container" className="w-full h-full min-h-[280px]"></div>
             </div>
+
+            {!isScanning && (
+              <div className="p-6 bg-slate-950/60 rounded-2xl border border-slate-800 text-center space-y-3">
+                <span className="text-5xl block">📱</span>
+                <p className="text-xs text-slate-400">
+                  Posicione o QR Code da inscrição na câmera para registrar a entrada automaticamente.
+                </p>
+                <button
+                  type="button"
+                  onClick={startScanner}
+                  disabled={!scriptLoaded}
+                  className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 text-sm"
+                >
+                  {scriptLoaded ? 'Ativar Câmera do Dispositivo' : 'Carregando Câmera...'}
+                </button>
+              </div>
+            )}
 
             {isScanning && (
               <button
+                type="button"
                 onClick={stopScanner}
                 className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs border border-slate-700 transition-all"
               >
